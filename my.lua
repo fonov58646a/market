@@ -232,15 +232,15 @@ end
 local FeaturesTab = Window:MakeTab({Name = 'Features'})
 
 -- Add toggles to the Features tab
-FeaturesTab:AddToggle({Name = 'ESP', Default = false, Callback = ESP_Toggle})
-FeaturesTab:AddToggle({Name = 'Fly', Default = false, Callback = Fly_Toggle})
-FeaturesTab:AddToggle({Name = 'NoClip', Default = false, Callback = NoClip_Toggle})
-FeaturesTab:AddToggle({Name = 'Auto Open', Default = false, Callback = AutoOpen_Toggle})
-FeaturesTab:AddToggle({Name = 'Auto Buy', Default = false, Callback = AutoBuy_Toggle})
-FeaturesTab:AddToggle({Name = 'Auto Collect', Default = false, Callback = AutoCollect_Toggle})
-FeaturesTab:AddToggle({Name = '500x Luck', Default = false, Callback = Luck_Toggle})
-FeaturesTab:AddToggle({Name = '500x Money', Default = false, Callback = Money_Toggle})
-FeaturesTab:AddToggle({Name = 'Infinite Money', Default = false, Callback = InfiniteMoney_Toggle})
+FeaturesTab:AddToggle({Name = 'ESP', Default = false, Callback = function(value) ESP_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'Fly', Default = false, Callback = function(value) Fly_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'NoClip', Default = false, Callback = function(value) NoClip_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'Auto Open', Default = false, Callback = function(value) AutoOpen_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'Auto Buy', Default = false, Callback = function(value) AutoBuy_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'Auto Collect', Default = false, Callback = function(value) AutoCollect_Toggle(value) end})
+FeaturesTab:AddToggle({Name = '500x Luck', Default = false, Callback = function(value) Luck_Toggle(value) end})
+FeaturesTab:AddToggle({Name = '500x Money', Default = false, Callback = function(value) Money_Toggle(value) end})
+FeaturesTab:AddToggle({Name = 'Infinite Money', Default = false, Callback = function(value) InfiniteMoney_Toggle(value) end})
 
 -- Initialize OrionLib
 OrionLib:Init()
