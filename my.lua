@@ -4,27 +4,71 @@ local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/1nig
 -- Game Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
--- Local Player
+-- Local Variables
 local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
-local Camera = workspace.CurrentCamera
 
--- Zombie Tracking
+-- ESP and Zombie Tracking
 local Zombies = {}
-local ESPBoxes = {}
+local ESPConnections = {}
 
--- Orion Library Window
+-- Drawing System for ESP Skeleton
+local Drawing = {}
+local function CreateSkeletonESP(zombie)
+    local humanoid = zombie:FindFirstChild("Humanoid")
+    if not humanoid then return end
+
+    local rig = {
+        Head = zombie:FindFirstChild("Head"),
+        LeftArm = zombie:FindFirstChild("Left Arm"),
+        RightArm = zombie:FindFirstChild("Right Arm"),
+        Torso = zombie:FindFirstChild("Torso"),
+        LeftLeg = zombie:FindFirstChild("Left Leg"),
+        RightLeg = zombie:FindFirstChild("Right Leg"),
+    }
+
+    for _, part in pairs(rig) do
+        if part then
+            local espPart = Drawing.new("Line")
+            espPart.Color = Color3.new(1, 0, 0)
+            espPart.Thickness = 2
+            espPart.Transparency = 1
+            Drawing[part] = espPart
+        end
+    end
+
+    -- Update ESP positions
+    task.spawn(function()
+        while task.wait(0.1) do
+            if not zombie or not zombie.Parent then break end
+            for part, espPart in pairs(Drawing) do
+                if part and espPart then
+                    espPart.From = part.Position
+                    espPart.To = (part.Name == "Head" and rig.Torso.Position) or
+                                 (part.Name == "Torso" and (rig.LeftArm.Position or rig.RightArm.Position)) or
+                                 (part.Name == "LeftArm" and rig.Head.Position) or
+                                 (part.Name == "RightArm" and rig.Torso.Position) or
+                                 (part.Name == "Left Leg" and rig.Torso.Position) or
+                                 (part.Name == "Right Leg" and rig.Torso.Position)
+                    espPart.Visible = true
+                end
+            end
+        end
+    end)
+end
+
+-- Initialize Orion Window
 local Window = OrionLib:MakeWindow({
-    Name = "Hunty Zombie",
+    Name = "Hunty Zombie ESP",
     IntroEnabled = true,
-    IntroText = "Hunty Zombie Script",
-    ConfigFolder = "HuntyZombieConfigs"
+    IntroText = "Advanced Features",
+    ConfigFolder = "HuntyZombieConfig"
 })
 
 -- Main Tab
@@ -33,176 +77,154 @@ local MainTab = Window:MakeTab({
     Icon = "rbxassetid://4483345875"
 })
 
--- ESP Feature
-local ESPEnabled = false
+-- Toggle for ESP
 MainTab:AddToggle({
-    Name = "ESP Zombies",
+    Name = "Skeleton ESP",
     Default = false,
-    Callback = function(Value)
-        ESPEnabled = Value
-        if Value then
-            for _, Zombie in ipairs(workspace:GetDescendants()) do
-                if Zombie:IsA("Model") and Zombie:FindFirstChild("HumanoidRootPart") then
-                    table.insert(Zombies, Zombie)
-                    local espBox = Instance.new("BoxHandleAdornment")
-                    espBox.Adornee = Zombie.HumanoidRootPart
-                    espBox.Size = Zombie.HumanoidRootPart.Size + Vector3.new(0.5, 0.5, 0.5)
-                    espBox.Color3 = Color3.new(1, 0, 0)
-                    espBox.Transparency = 0.7
-                    espBox.ZIndex = 2
-                    espBox.Parent = Zombie
-                    table.insert(ESPBoxes, espBox)
+    Callback = function(toggled)
+        if toggled then
+            for _, model in pairs(Workspace:GetDescendants()) do
+                if model:IsA("Model") and model:FindFirstChild("Humanoid") then
+                    CreateSkeletonESP(model)
                 end
             end
+            ESPConnections[#ESPConnections + 1] = Workspace.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("Model") and descendant:FindFirstChild("Humanoid") then
+                    CreateSkeletonESP(descendant)
+                end
+            end)
         else
-            for _, Box in ipairs(ESPBoxes) do
-                Box:Destroy()
+            for _, connection in pairs(ESPConnections) do
+                connection:Disconnect()
             end
-            ESPBoxes = {}
-            Zombies = {}
+            ESPConnections = {}
+            for _, drawing in pairs(Drawing) do
+                drawing.Visible = false
+                drawing:Remove()
+            end
+            Drawing = {}
         end
     end
 })
 
--- Auto Farm Headshots
+-- Auto Farm Logic (Headshot)
 local IsAutoFarming = false
 MainTab:AddToggle({
-    Name = "Auto Farm Headshots",
+    Name = "Auto Headshot Farm",
     Default = false,
-    Callback = function(Value)
-        IsAutoFarming = Value
-        if Value then
-            Camera.CameraType = Enum.CameraType.Scriptable
-            while IsAutoFarming and wait(0.1) do
-                local ClosestZombie = nil
-                local MinDistance = math.huge
-
-                for _, Zombie in ipairs(workspace:GetDescendants()) do
-                    if Zombie:IsA("Model") and Zombie:FindFirstChild("Head") then
-                        local Distance = (Zombie.Head.Position - Camera.CFrame.Position).Magnitude
-                        if Distance < MinDistance then
-                            MinDistance = Distance
-                            ClosestZombie = Zombie
-                        end
-                    end
-                end
-
-                if ClosestZombie then
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, ClosestZombie.Head.Position)
+    Callback = function(toggled)
+        IsAutoFarming = toggled
+        while IsAutoFarming do
+            task.wait()
+            local zombies = Workspace:GetDescendants()
+            for _, model in pairs(zombies) do
+                if model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("Head") then
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, model.Head.Position)
                 end
             end
-            Camera.CameraType = Enum.CameraType.Custom
         end
     end
 })
 
--- Auto Skills
-local IsAutoSkill = false
+-- Hooking Skills (Z, X, C) and Kill Aura (G)
+local OldRemoteEvent = nil
 MainTab:AddToggle({
     Name = "Auto Skills (Z, X, C)",
     Default = false,
-    Callback = function(Value)
-        IsAutoSkill = Value
-        if Value then
-            while IsAutoSkill and wait(0.15) do
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton2(Vector2.new())
-                VirtualUser:SetKeyDown(Enum.KeyCode.Z, true)
-                VirtualUser:SetKeyDown(Enum.KeyCode.X, true)
-                VirtualUser:SetKeyDown(Enum.KeyCode.C, true)
-                wait(0.1)
-                VirtualUser:SetKeyDown(Enum.KeyCode.Z, false)
-                VirtualUser:SetKeyDown(Enum.KeyCode.X, false)
-                VirtualUser:SetKeyDown(Enum.KeyCode.C, false)
+    Callback = function(toggled)
+        if toggled then
+            OldRemoteEvent = hookmetamethod(game, "__namecall", function(Self, ...)
+                local args = {...}
+                if getnamecallmethod() == "FireServer" and tostring(Self) == "SkillRemoteEvent" then
+                    args[1] = "UseSkill" -- Force the skill activation
+                    return OldRemoteEvent(Self, unpack(args))
+                end
+                return OldRemoteEvent(Self, ...)
+            end)
+            task.spawn(function()
+                while toggled do
+                    task.wait(0.5) -- Anti-cooldown delay
+                    ReplicatedStorage:FindFirstChild("SkillRemoteEvent"):FireServer("Z")
+                    ReplicatedStorage:FindFirstChild("SkillRemoteEvent"):FireServer("X")
+                    ReplicatedStorage:FindFirstChild("SkillRemoteEvent"):FireServer("C")
+                end
+            end)
+        else
+            if OldRemoteEvent then
+                unhookmetamethod(game, "__namecall")
             end
         end
     end
 })
 
--- Kill Aura
-local IsKillAura = false
+local IsKillAuraActive = false
 MainTab:AddToggle({
-    Name = "Auto G (Kill Aura)",
+    Name = "Kill Aura (G)",
     Default = false,
-    Callback = function(Value)
-        IsKillAura = Value
-        if Value then
-            while IsKillAura and wait(0.2) do
-                VirtualUser:ClickButton2(Vector2.new())
-                VirtualUser:SetKeyDown(Enum.KeyCode.G, true)
-                wait(0.1)
-                VirtualUser:SetKeyDown(Enum.KeyCode.G, false)
-            end
+    Callback = function(toggled)
+        IsKillAuraActive = toggled
+        while IsKillAuraActive do
+            task.wait(0.5)
+            ReplicatedStorage:FindFirstChild("CombatRemoteEvent"):FireServer("G")
         end
     end
 })
 
--- No-Clip
+-- No-Clip and Auto-Win
 local IsNoClipping = false
 MainTab:AddToggle({
-    Name = "NoClip",
+    Name = "No-Clip",
     Default = false,
-    Callback = function(Value)
-        IsNoClipping = Value
-        if Value then
-            Humanoid:ChangeState(Enum.HumanoidStateType.Physicless)
-        else
-            Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+    Callback = function(toggled)
+        IsNoClipping = toggled
+        if toggled then
+            task.spawn(function()
+                while IsNoClipping do
+                    if Character and Character:FindFirstChild("HumanoidRootPart") then
+                        Character.HumanoidRootPart.CanCollide = false
+                        task.wait()
+                    end
+                end
+                if Character and Character:FindFirstChild("HumanoidRootPart") then
+                    Character.HumanoidRootPart.CanCollide = true
+                end
+            end)
         end
     end
 })
 
--- Auto Win on Clouds
-local function FindSafeCloudPosition()
-    -- Define known cloud positions based on map
-    local CloudPositions = {
-        Vector3.new(-80, 100, 150),
-        Vector3.new(100, 105, -200),
-        Vector3.new(-250, 105, 50)
-    }
-    
-    for _, Position in ipairs(CloudPositions) do
-        local RaycastParams = RaycastParams.new()
-        RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-        RaycastParams.FilterDescendantsInstances = {workspace.Terrain}
-        
-        local RaycastResult = workspace:Raycast(Position + Vector3.new(0, 10, 0), Vector3.new(0, -10, 0), RaycastParams)
-        if not RaycastResult then
-            return Position
-        end
-    end
-    return Vector3.new(0, 1000, 0)  -- Fallback position
-end
+-- Auto-Win Logic (Teleport to Cloud)
+local CloudPositions = {
+    CFrame.new(0, 500, 0), -- Default cloud position
+    CFrame.new(100, 500, 100),
+    CFrame.new(-100, 500, -100)
+}
 
 MainTab:AddButton({
-    Name = "Auto Win (Cloud Safety)",
+    Name = "Win (Cloud Teleport)",
     Callback = function()
-        if Character then
-            local SafePosition = FindSafeCloudPosition()
-            RootPart.CFrame = CFrame.new(SafePosition)
-            OrionLib:MakeNotification({
-                Name = "Auto Win",
-                Content = "Teleported to a safe cloud location!",
-                Time = 5
-            })
+        local rootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            rootPart.CFrame = CloudPositions[math.random(1, #CloudPositions)]
         end
     end
 })
 
 -- GodMode
-local OriginalTakeDamage
 local IsGodMode = false
 MainTab:AddToggle({
-    Name = "GodMode",
+    Name = "GodMode (Invincible)",
     Default = false,
-    Callback = function(Value)
-        IsGodMode = Value
-        if Value then
-            OriginalTakeDamage = Humanoid.TakeDamage
-            Humanoid.TakeDamage = function() end
+    Callback = function(toggled)
+        IsGodMode = toggled
+        if toggled then
+            local oldTakeDamage = nil
+            oldTakeDamage = hookfunction(Humanoid.TakeDamage, function(self, ...)
+                return oldTakeDamage
+            end)
         else
-            if OriginalTakeDamage then
-                Humanoid.TakeDamage = OriginalTakeDamage
+            if gethook(Humanoid.TakeDamage) then
+                unhookfunction(Humanoid.TakeDamage)
             end
         end
     end
@@ -214,28 +236,33 @@ local CreditsTab = Window:MakeTab({
     Icon = "rbxassetid://4483345875"
 })
 
-CreditsTab:AddLabel("Script made with Orion Library")
-CreditsTab:AddLabel("Advanced features for Hunty Zombie")
+CreditsTab:AddLabel("Script by Developers")
+CreditsTab:AddLabel("Using Orion Library Framework")
 CreditsTab:AddButton("Copy License", function()
-    setclipboard("Hunty-Zombie-Script-2023")
+    setclipboard("Hunty-Zombie-Script-2024")
     OrionLib:MakeNotification({
         Name = "License Copied",
-        Content = "License copied to clipboard!",
+        Content = "License copied!",
         Time = 5
     })
 end)
 
 -- Cleanup
 OrionLib:OnDestroy(function()
-    for _, Box in ipairs(ESPBoxes) do
-        Box:Destroy()
+    for _, drawing in pairs(Drawing) do
+        drawing.Visible = false
+        drawing:Remove()
     end
-    ESPBoxes = {}
-    Zombies = {}
+    Drawing = {}
+    for _, connection in pairs(ESPConnections) do
+        connection:Disconnect()
+    end
+    ESPConnections = {}
 end)
 
+-- Start the Orion Library
 OrionLib:MakeNotification({
-    Name = "Script Loaded",
-    Content = "All features are active!",
+    Name = "Script Loaded!",
+    Content = "All features are ready to use!",
     Time = 5
 })
