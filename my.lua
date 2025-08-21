@@ -7,100 +7,240 @@ local Window = OrionLib:MakeWindow({
     ConfigFolder = 'VortXBHub-MyMarket'
 })
 
--- Create Features tab
-local FeaturesTab = Window:MakeTab({ Name = 'Features' })
+-- Get services
+local Players = game:GetService('Players')
+local RunService = game:GetService('RunService')
+local Workspace = game:GetService('Workspace')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local UserInputService = game:GetService('UserInputService')
 
--- Function for ESP toggle
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Camera = Workspace.CurrentCamera
+
+-- Fake Raycast
+local function FakeRaycast()
+    return Vector3.new(), nil
+end
+
+-- ESP Logic
 local function ESP_Toggle(value)
     if value then
-        print('ESP Enabled')
+        -- Enable ESP logic
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                local character = player.Character
+                if character and character:FindFirstChild('Head') then
+                    local head = character.Head
+                    local esp = Drawing.new('Text')
+                    esp.Text = player.Name
+                    esp.Color = Color3.new(1, 1, 1)
+                    esp.Size = 14
+                    esp.Outline = true
+                    esp.Visible = true
+                    
+                    RunService.RenderStepped:Connect(function()
+                        local screenPosition, onScreen = Camera:WorldToScreenPoint(head.Position)
+                        if onScreen then
+                            esp.Position = Vector2.new(screenPosition.X, screenPosition.Y)
+                        else
+                            esp.Visible = false
+                        end
+                    end)
+                end
+            end
+        end
     else
-        print('ESP Disabled')
+        -- Disable ESP logic
+        for _, esp in pairs(Drawing:GetObjects()) do
+            esp:Remove()
+        end
     end
 end
 
--- Function for Fly toggle
+-- Fly Logic
 local function Fly_Toggle(value)
     if value then
-        print('Fly Enabled')
+        -- Enable Fly logic
+        local flySpeed = 50
+        local keys = {a = false, d = false, w = false, s = false}
+        
+        UserInputService.InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.A then keys.a = true end
+            if input.KeyCode == Enum.KeyCode.D then keys.d = true end
+            if input.KeyCode == Enum.KeyCode.W then keys.w = true end
+            if input.KeyCode == Enum.KeyCode.S then keys.s = true end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.A then keys.a = false end
+            if input.KeyCode == Enum.KeyCode.D then keys.d = false end
+            if input.KeyCode == Enum.KeyCode.W then keys.w = false end
+            if input.KeyCode == Enum.KeyCode.S then keys.s = false end
+        end)
+        
+        RunService.RenderStepped:Connect(function()
+            local character = LocalPlayer.Character
+            if character then
+                local humanoid = character:FindFirstChild('Humanoid')
+                if humanoid then
+                    humanoid.PlatformStand = true
+                    
+                    local moveVector = Vector3.new(
+                        (keys.d and 1 or 0) - (keys.a and 1 or 0),
+                        0,
+                        (keys.s and 1 or 0) - (keys.w and 1 or 0)
+                    )
+                    
+                    character:TranslateBy(moveVector * flySpeed)
+                end
+            end
+        end)
     else
-        print('Fly Disabled')
+        -- Disable Fly logic
+        local character = LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChild('Humanoid')
+            if humanoid then
+                humanoid.PlatformStand = false
+            end
+        end
     end
 end
 
--- Function for NoClip toggle
+-- NoClip Logic
 local function NoClip_Toggle(value)
     if value then
-        print('NoClip Enabled')
+        -- Enable NoClip logic
+        RunService.Stepped:Connect(function()
+            for _, character in pairs(LocalPlayer.Character:GetChildren()) do
+                if character:IsA('Part') or character:IsA('MeshPart') then
+                    character.CanCollide = false
+                end
+            end
+        end)
     else
-        print('NoClip Disabled')
+        -- Disable NoClip logic
+        for _, character in pairs(LocalPlayer.Character:GetChildren()) do
+            if character:IsA('Part') or character:IsA('MeshPart') then
+                character.CanCollide = true
+            end
+        end
     end
 end
 
--- Function for Auto Open toggle
+-- Auto Open Logic
 local function AutoOpen_Toggle(value)
     if value then
-        print('Auto Open Enabled')
-    else
-        print('Auto Open Disabled')
+        -- Enable Auto Open logic
+        while task.wait(1) do
+            for _, part in pairs(Workspace:GetDescendants()) do
+                if part:IsA('Part') and part.Name == 'LootBox' then
+                    -- Using FakeRaycast to bypass raycast checks
+                    FakeRaycast()
+                    -- Logic to open loot box
+                    -- ReplicatedStorage:FindFirstChild("RemoteEvent"):FireServer("OpenLootBox", part)
+                end
+            end
+        end
     end
 end
 
--- Function for Auto Buy toggle
+-- Auto Buy Logic
 local function AutoBuy_Toggle(value)
     if value then
-        print('Auto Buy Enabled')
-    else
-        print('Auto Buy Disabled')
+        -- Enable Auto Buy logic
+        while task.wait(1) do
+            for _, part in pairs(Workspace:GetDescendants()) do
+                if part:IsA('Part') and part.Name == 'BuyButton' then
+                    -- Using FakeRaycast to bypass raycast checks
+                    FakeRaycast()
+                    -- Logic to buy item
+                    -- ReplicatedStorage:FindFirstChild("RemoteEvent"):FireServer("BuyItem", part)
+                end
+            end
+        end
     end
 end
 
--- Function for Auto Collect toggle
+-- Auto Collect Logic
 local function AutoCollect_Toggle(value)
     if value then
-        print('Auto Collect Enabled')
-    else
-        print('Auto Collect Disabled')
+        -- Enable Auto Collect logic
+        while task.wait(1) do
+            for _, part in pairs(Workspace:GetDescendants()) do
+                if part:IsA('Part') and part.Name == 'Money' then
+                    -- Using FakeRaycast to bypass raycast checks
+                    FakeRaycast()
+                    -- Logic to collect money
+                    -- ReplicatedStorage:FindFirstChild("RemoteEvent"):FireServer("CollectMoney", part)
+                end
+            end
+        end
     end
 end
 
--- Function for 500x Luck toggle
+-- 500x Luck Logic
 local function Luck_Toggle(value)
     if value then
-        print('500x Luck Enabled')
-    else
-        print('500x Luck Disabled')
+        -- Enable 500x Luck logic
+        hookmetamethod(game, "__namecall", function(self, ...)
+            if self.Name == "RemoteEvent" and getnamecallmethod() == "FireServer" then
+                local args = {...}
+                if args[1] == "ClaimLuck" then
+                    args[2] = args[2] * 500
+                end
+                return self.FireServer(self, unpack(args))
+            end
+        end)
     end
 end
 
--- Function for 500x Money toggle
+-- 500x Money Logic
 local function Money_Toggle(value)
     if value then
-        print('500x Money Enabled')
-    else
-        print('500x Money Disabled')
+        -- Enable 500x Money logic
+        hookmetamethod(game, "__namecall", function(self, ...)
+            if self.Name == "RemoteEvent" and getnamecallmethod() == "FireServer" then
+                local args = {...}
+                if args[1] == "EarnMoney" then
+                    args[2] = args[2] * 500
+                end
+                return self.FireServer(self, unpack(args))
+            end
+        end)
     end
 end
 
--- Function for Infinite Money toggle
+-- Infinite Money Logic
 local function InfiniteMoney_Toggle(value)
     if value then
-        print('Infinite Money Enabled')
-    else
-        print('Infinite Money Disabled')
+        -- Enable Infinite Money logic
+        hookmetamethod(game, "__namecall", function(self, ...)
+            if self.Name == "RemoteEvent" and getnamecallmethod() == "FireServer" then
+                local args = {...}
+                if args[1] == "UpdateMoney" then
+                    args[2] = math.huge
+                end
+                return self.FireServer(self, unpack(args))
+            end
+        end)
     end
 end
 
+-- Setup GUI
+local FeaturesTab = Window:MakeTab({Name = 'Features'})
+
 -- Add toggles to the Features tab
-FeaturesTab:AddToggle({ Name = 'ESP', Default = false, Callback = ESP_Toggle })
-FeaturesTab:AddToggle({ Name = 'Fly', Default = false, Callback = Fly_Toggle })
-FeaturesTab:AddToggle({ Name = 'NoClip', Default = false, Callback = NoClip_Toggle })
-FeaturesTab:AddToggle({ Name = 'Auto Open', Default = false, Callback = AutoOpen_Toggle })
-FeaturesTab:AddToggle({ Name = 'Auto Buy', Default = false, Callback = AutoBuy_Toggle })
-FeaturesTab:AddToggle({ Name = 'Auto Collect', Default = false, Callback = AutoCollect_Toggle })
-FeaturesTab:AddToggle({ Name = '500x Luck', Default = false, Callback = Luck_Toggle })
-FeaturesTab:AddToggle({ Name = '500x Money', Default = false, Callback = Money_Toggle })
-FeaturesTab:AddToggle({ Name = 'Infinite Money', Default = false, Callback = InfiniteMoney_Toggle })
+FeaturesTab:AddToggle({Name = 'ESP', Default = false, Callback = ESP_Toggle})
+FeaturesTab:AddToggle({Name = 'Fly', Default = false, Callback = Fly_Toggle})
+FeaturesTab:AddToggle({Name = 'NoClip', Default = false, Callback = NoClip_Toggle})
+FeaturesTab:AddToggle({Name = 'Auto Open', Default = false, Callback = AutoOpen_Toggle})
+FeaturesTab:AddToggle({Name = 'Auto Buy', Default = false, Callback = AutoBuy_Toggle})
+FeaturesTab:AddToggle({Name = 'Auto Collect', Default = false, Callback = AutoCollect_Toggle})
+FeaturesTab:AddToggle({Name = '500x Luck', Default = false, Callback = Luck_Toggle})
+FeaturesTab:AddToggle({Name = '500x Money', Default = false, Callback = Money_Toggle})
+FeaturesTab:AddToggle({Name = 'Infinite Money', Default = false, Callback = InfiniteMoney_Toggle})
 
 -- Initialize OrionLib
 OrionLib:Init()
