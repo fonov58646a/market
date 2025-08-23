@@ -1,14 +1,43 @@
+-- Load Orion Library
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/1nig1htmare1234/SCRIPTS/main/Orion.lua"))()
-local Window = OrionLib:MakeWindow({Name = "Hypershooters", IntroEnabled = true, ConfigFolder = "Hypershooters"})
 
--- Main configuration for Hypershooters
+-- Initialize Window
+local Window = OrionLib:MakeWindow({
+    Name = "HyperShotLum",
+    IntroEnabled = true,
+    IntroText = "HyperShotLum",
+    HidePremium = true
+})
+
+-- Create Tabs
+local silentaimTab = Window:MakeTab({
+    Name = "SilentAim",
+    Icon = "rbxassetid://4483345875"
+})
+
+local bigheadTab = Window:MakeTab({
+    Name = "BigHead",
+    Icon = "rbxassetid://4483345875"
+})
+
+local tpallTab = Window:MakeTab({
+    Name = "TPAll",
+    Icon = "rbxassetid://4483345875"
+})
+
+local otherTab = Window:MakeTab({
+    Name = "Other",
+    Icon = "rbxassetid://4483345875"
+})
+
+-- Global Configuration
 getgenv().hypershotlum = {
     silentaim = {
-        enabled = true,
+        enabled = false,
         teamcheck = true,
         wallcheck = false,
         fov = 200,
-        showfov = true,
+        showfov = false,
         showsnapline = true,
         fovcolor = Color3.fromRGB(1, 1, 1),
         snapcolor = Color3.fromRGB(1, 1, 1),
@@ -28,10 +57,14 @@ getgenv().hypershotlum = {
         teamcheck = false,
         offset = 5,
         tpweapons = false
+    },
+    other = {
+        nocooldown = false,
+        luffy = false
     }
 }
 
--- Fetch necessary services
+-- Services
 local a = game:GetService("UserInputService")
 local b = game:GetService("RunService")
 local c = game:GetService("Players")
@@ -39,8 +72,17 @@ local d = c.LocalPlayer
 local e = workspace.CurrentCamera
 local f = workspace
 local g = getgenv().hypershotlum.silentaim
+local h = {
+    aimbone = g.hitpart,
+    aimboneenabled = g.enabled,
+    usefov = true,
+    showfov = g.showfov,
+    showtargetline = g.showsnapline,
+    visibilitycheck = g.visibilitycheck,
+    fovsize = g.fov
+}
 
--- Drawing variables for FOV and snapline
+-- Drawing Objects
 local i = Drawing.new("Circle")
 i.Radius = g.fov
 i.Color = g.fovcolor
@@ -73,7 +115,7 @@ l.Transparency = 1
 l.Visible = g.showsnapline
 l.ZIndex = 1
 
--- Visibility check function
+-- Utility Functions
 local function m(n)
     if not g.visibilitycheck then return true end
     local o = e.CFrame.Position
@@ -89,7 +131,6 @@ local function m(n)
     return true
 end
 
--- Team check function
 local function t(u)
     if not g.teamcheck then return true end
     local v = d:GetAttribute("Team")
@@ -106,19 +147,16 @@ local function t(u)
     return v ~= w
 end
 
--- World to viewport function
 local function y(z)
     local aa, ab = e:WorldToViewportPoint(z)
     return Vector2.new(aa.X, aa.Y), ab
 end
 
--- Health check function
 local function ac(ad)
     local ae = ad and ad:FindFirstChildOfClass("Humanoid")
     return ae and ae.Health > 0
 end
 
--- Random hitpart function
 local function af(ag)
     if not ag then return nil end
     local ah = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "LeftArm", "RightArm", "LeftLeg", "RightLeg"}
@@ -134,7 +172,6 @@ local function af(ag)
     end
 end
 
--- Hitpart selection function
 local function al(am)
     if not am then return nil end
     if g.hitpart == "Random" then
@@ -144,7 +181,6 @@ local function al(am)
     end
 end
 
--- Target selection function
 local function an()
     local ao = Vector2.new(e.ViewportSize.X / 2, e.ViewportSize.Y / 2)
     local ap = nil
@@ -193,20 +229,13 @@ local function an()
     return ap
 end
 
--- Touch tap event for toggling functionality
 local bc = false
 a.TouchTap:Connect(function()
     bc = not bc
 end)
 
--- FOV and snapline updates
-local bd = g.fov
-local be = 8
-b.RenderStepped:Connect(function(bf)
-    local bg = f:FindFirstChild("BotRig")
-    if bg then
-        bg:Destroy()
-    end
+-- RenderStepped Connections
+b.RenderStepped:Connect(function()
     if not g.enabled then
         g.target = nil
         g.istargeting = false
@@ -216,6 +245,7 @@ b.RenderStepped:Connect(function(bf)
         l.Visible = false
         return
     end
+
     local bh = Vector2.new(e.ViewportSize.X / 2, e.ViewportSize.Y / 2)
     local bi = g.fov
     local bj = bi * 0.35
@@ -223,19 +253,18 @@ b.RenderStepped:Connect(function(bf)
     if g.dynamicfov and bc then
         bk = bi + bj
     end
-    bd = bd + (bk - bd) * math.clamp(be * bf, 0, 1)
+
     i.Position = bh
-    i.Radius = bd
+    i.Radius = bk
     j.Position = bh
-    j.Radius = bd
+    j.Radius = bk
     i.Visible = g.showfov and g.enabled
     j.Visible = g.showfov and g.enabled
-    local bl = nil
-    if h.aimboneenabled then
-        bl = an()
-    end
+
+    local bl = an()
     g.target = bl
     g.istargeting = bl ~= nil
+
     if g.istargeting and g.showsnapline then
         local bm, bn = y(bl.Position)
         if bn then
@@ -255,7 +284,6 @@ b.RenderStepped:Connect(function(bf)
     end
 end)
 
--- Raycast hook for silent aim
 local bo
 bo = hookmetamethod(game, "__namecall", function(bp, ...)
     local bq = getnamecallmethod()
@@ -290,311 +318,312 @@ bo = hookmetamethod(game, "__namecall", function(bp, ...)
     return bo(bp, ...)
 end)
 
--- ESP feature for bighead
-local bx = getgenv().hypershotlum.bighead.enabled
-local by = getgenv().hypershotlum.bighead.size
-local function dh(dl, by)
-    local dk = dl:FindFirstChild("Head")
-    if dk and dk:IsA("BasePart") then
-        dk.Size = Vector3.new(by, by, by)
-        dk.Transparency = 0
-    end
-end
+-- UI Elements
+silentaimTab:AddToggle({
+    Name = "Enabled",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.enabled = value
+        i.Visible = value and getgenv().hypershotlum.silentaim.showfov
+        j.Visible = value and getgenv().hypershotlum.silentaim.showfov
+    end,
+    Save = true,
+    Flag = "silentaim_enabled"
+})
 
--- Teleport feature
-local bz = getgenv().hypershotlum.tpall.players
-local ca = getgenv().hypershotlum.tpall.bots
-local cb = getgenv().hypershotlum.tpall.teamcheck
-local cc = getgenv().hypershotlum.tpall.tpweapons
-local cd = getgenv().hypershotlum.tpall.offset
-local ce = 10
-local cf = 1
+silentaimTab:AddSlider({
+    Name = "FOV",
+    Min = 1,
+    Max = 500,
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.fov = value
+        i.Radius = value
+        j.Radius = value
+    end,
+    Save = true,
+    Flag = "silentaim_fov"
+})
 
+silentaimTab:AddToggle({
+    Name = "Show FOV",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.showfov = value
+        i.Visible = value and getgenv().hypershotlum.silentaim.enabled
+        j.Visible = value and getgenv().hypershotlum.silentaim.enabled
+    end,
+    Save = true,
+    Flag = "silentaim_showfov"
+})
+
+silentaimTab:AddToggle({
+    Name = "Team Check",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.teamcheck = value
+    end,
+    Save = true,
+    Flag = "silentaim_teamcheck"
+})
+
+silentaimTab:AddToggle({
+    Name = "Wall Check",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.wallcheck = value
+    end,
+    Save = true,
+    Flag = "silentaim_wallcheck"
+})
+
+silentaimTab:AddToggle({
+    Name = "Dynamic FOV",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.dynamicfov = value
+    end,
+    Save = true,
+    Flag = "silentaim_dynamicfov"
+})
+
+silentaimTab:AddToggle({
+    Name = "Magic Bullet",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.magicbullet = value
+    end,
+    Save = true,
+    Flag = "silentaim_magicbullet"
+})
+
+silentaimTab:AddToggle({
+    Name = "Visibility Check",
+    Callback = function(value)
+        getgenv().hypershotlum.silentaim.visibilitycheck = value
+    end,
+    Save = true,
+    Flag = "silentaim_visibilitycheck"
+})
+
+-- BigHead Tab
+bigheadTab:AddToggle({
+    Name = "Enabled",
+    Callback = function(value)
+        getgenv().hypershotlum.bighead.enabled = value
+    end,
+    Save = true,
+    Flag = "bighead_enabled"
+})
+
+bigheadTab:AddSlider({
+    Name = "Size",
+    Min = 1,
+    Max = 10,
+    Callback = function(value)
+        getgenv().hypershotlum.bighead.size = value
+    end,
+    Save = true,
+    Flag = "bighead_size"
+})
+
+-- TPAll Tab
+tpallTab:AddToggle({
+    Name = "Players",
+    Callback = function(value)
+        getgenv().hypershotlum.tpall.players = value
+    end,
+    Save = true,
+    Flag = "tpall_players"
+})
+
+tpallTab:AddToggle({
+    Name = "Bots",
+    Callback = function(value)
+        getgenv().hypershotlum.tpall.bots = value
+    end,
+    Save = true,
+    Flag = "tpall_bots"
+})
+
+tpallTab:AddToggle({
+    Name = "Team Check",
+    Callback = function(value)
+        getgenv().hypershotlum.tpall.teamcheck = value
+    end,
+    Save = true,
+    Flag = "tpall_teamcheck"
+})
+
+tpallTab:AddSlider({
+    Name = "Offset",
+    Min = 1,
+    Max = 20,
+    Callback = function(value)
+        getgenv().hypershotlum.tpall.offset = value
+    end,
+    Save = true,
+    Flag = "tpall_offset"
+})
+
+tpallTab:AddToggle({
+    Name = "TP Weapons",
+    Callback = function(value)
+        getgenv().hypershotlum.tpall.tpweapons = value
+    end,
+    Save = true,
+    Flag = "tpall_tpweapons"
+})
+
+-- Other Tab
+otherTab:AddToggle({
+    Name = "No Cooldown",
+    Callback = function(value)
+        getgenv().hypershotlum.other.nocooldown = value
+        if value then
+            for _, v in next, getgc(true) do
+                if typeof(v) == 'table' and rawget(v, 'CD') then
+                    rawset(v, 'CD', 0)
+                end
+            end
+        end
+    end,
+    Save = true,
+    Flag = "other_nocooldown"
+})
+
+otherTab:AddToggle({
+    Name = "Luffy",
+    Callback = function(value)
+        getgenv().hypershotlum.other.luffy = value
+        if value then
+            for _, v in next, getgc(true) do
+                if typeof(v) == 'table' and rawget(v, 'Spread') then
+                    rawset(v, 'Spread', 0)
+                    rawset(v, 'BaseSpread', 0)
+                    rawset(v, 'MinCamRecoil', Vector3.new())
+                    rawset(v, 'MaxCamRecoil', Vector3.new())
+                    rawset(v, 'MinRotRecoil', Vector3.new())
+                    rawset(v, 'MaxRotRecoil', Vector3.new())
+                    rawset(v, 'MinTransRecoil', Vector3.new())
+                    rawset(v, 'MaxTransRecoil', Vector3.new())
+                    rawset(v, 'ScopeSpeed', 100)
+                end
+            end
+        end
+    end,
+    Save = true,
+    Flag = "other_luffy"
+})
+
+-- RenderStepped for TPAll and Other Features
 b.RenderStepped:Connect(function()
-    local cg = d.Character or d.CharacterAdded:Wait()
-    local ch = cg:FindFirstChild("HumanoidRootPart") or cg:WaitForChild("HumanoidRootPart")
-    if not ch then return end
-    local ci = cg:GetAttribute("Team")
-    local cj = Vector2.new(e.ViewportSize.X / 2, e.ViewportSize.Y / 2)
-    local ck = e:ViewportPointToRay(cj.X, cj.Y)
-    local cl = ck.Origin + ck.Direction * 1000
-    local cm = -2
-    if bz then
-        for _, cn in ipairs(f:GetChildren()) do
-            if cn:IsA("Model") and cn ~= cg then
-                local co = cn:FindFirstChild("HumanoidRootPart")
-                local cp = cn:FindFirstChild("Head")
-                if co and cp then
-                    if cb then
-                        local cq = cn:GetAttribute("Team")
-                        if cq and ci and cq ~= ci then
-                            local cr = e.CFrame.Position + e.CFrame.LookVector * cd
+    -- TPAll Logic
+    if getgenv().hypershotlum.tpall.players or getgenv().hypershotlum.tpall.bots then
+        local cg = d.Character or d.CharacterAdded:Wait()
+        local ch = cg:FindFirstChild("HumanoidRootPart") or cg:WaitForChild("HumanoidRootPart")
+        if not ch then return end
+        local ci = cg:GetAttribute("Team")
+        local cj = Vector2.new(e.ViewportSize.X / 2, e.ViewportSize.Y / 2)
+        local ck = e:ViewportPointToRay(cj.X, cj.Y)
+        local cl = ck.Origin + ck.Direction * 1000
+        local cm = -2
+
+        if getgenv().hypershotlum.tpall.players then
+            for _, cn in ipairs(workspace:GetChildren()) do
+                if cn:IsA("Model") and cn ~= cg then
+                    local co = cn:FindFirstChild("HumanoidRootPart")
+                    local cp = cn:FindFirstChild("Head")
+                    if co and cp then
+                        if getgenv().hypershotlum.tpall.teamcheck then
+                            local cq = cn:GetAttribute("Team")
+                            if cq and ci and cq ~= ci then
+                                local cr = e.CFrame.Position + e.CFrame.LookVector * getgenv().hypershotlum.tpall.offset
+                                local cs = Vector3.new(cr.X, cr.Y + cm, cr.Z)
+                                co.CFrame = CFrame.new(cs, e.CFrame.Position)
+                                cp.CFrame = CFrame.new(cp.Position, cl)
+                            end
+                        else
+                            local cr = e.CFrame.Position + e.CFrame.LookVector * getgenv().hypershotlum.tpall.offset
                             local cs = Vector3.new(cr.X, cr.Y + cm, cr.Z)
                             co.CFrame = CFrame.new(cs, e.CFrame.Position)
                             cp.CFrame = CFrame.new(cp.Position, cl)
                         end
-                    else
-                        local cr = e.CFrame.Position + e.CFrame.LookVector * cd
-                        local cs = Vector3.new(cr.X, cr.Y + cm, cr.Z)
-                        co.CFrame = CFrame.new(cs, e.CFrame.Position)
-                        cp.CFrame = CFrame.new(cp.Position, cl)
                     end
                 end
             end
         end
-    end
 
-    if ca then
-        local ct = f:FindFirstChild("Mobs")
-        if ct then
-            for _, cu in ipairs(ct:GetChildren()) do
-                if cu:IsA("Model") then
-                    local cv = cu:FindFirstChild("HumanoidRootPart")
-                    local cw = cu:FindFirstChild("Head")
-                    if cv and cw then
-                        if cb then
-                            local cx = cu:GetAttribute("Team")
-                            if cx and ci and cx ~= ci then
-                                local cy = e.CFrame.Position + e.CFrame.LookVector * cd
+        if getgenv().hypershotlum.tpall.bots then
+            local ct = workspace:FindFirstChild("Mobs")
+            if ct then
+                for _, cu in ipairs(ct:GetChildren()) do
+                    if cu:IsA("Model") then
+                        local cv = cu:FindFirstChild("HumanoidRootPart")
+                        local cw = cu:FindFirstChild("Head")
+                        if cv and cw then
+                            if getgenv().hypershotlum.tpall.teamcheck then
+                                local cx = cu:GetAttribute("Team")
+                                if cx and ci and cx ~= ci then
+                                    local cy = e.CFrame.Position + e.CFrame.LookVector * getgenv().hypershotlum.tpall.offset
+                                    local cz = Vector3.new(cy.X, cy.Y + cm, cy.Z)
+                                    cv.CFrame = CFrame.new(cz, e.CFrame.Position)
+                                    cw.CFrame = CFrame.new(cw.Position, cl)
+                                end
+                            else
+                                local cy = e.CFrame.Position + e.CFrame.LookVector * getgenv().hypershotlum.tpall.offset
                                 local cz = Vector3.new(cy.X, cy.Y + cm, cy.Z)
                                 cv.CFrame = CFrame.new(cz, e.CFrame.Position)
                                 cw.CFrame = CFrame.new(cw.Position, cl)
                             end
-                        else
-                            local cy = e.CFrame.Position + e.CFrame.LookVector * cd
-                            local cz = Vector3.new(cy.X, cy.Y + cm, cy.Z)
-                            cv.CFrame = CFrame.new(cz, e.CFrame.Position)
-                            cw.CFrame = CFrame.new(cw.Position, cl)
                         end
                     end
                 end
             end
         end
-    end
 
-    local da = -3
-    if cc then
-        local db = f:FindFirstChild("IgnoreThese") and f.IgnoreThese:FindFirstChild("Pickups") and f.IgnoreThese.Pickups:FindFirstChild("Weapons")
-        if db then
-            local dc = db:GetChildren()
-            if #dc > 0 then
-                if cf > #dc then cf = 1 end
-                local dd = dc[cf]
-                if dd and dd:IsA("Model") then
-                    local de = dd:FindFirstChild("Center")
-                    if de and de:IsA("BasePart") then
-                        local df = ch.Position + ch.CFrame.LookVector * ce + Vector3.new(0, da, 0)
-                        local dg = CFrame.new(df, ch.Position)
-                        dd:SetPrimaryPartCFrame(dg)
-                    elseif dd and dd:IsA("BasePart") then
-                        local df = ch.Position + ch.CFrame.LookVector * ce + Vector3.new(0, da, 0)
-                        local dg = CFrame.new(df, ch.Position)
-                        dd.CFrame = dg
+        -- TP Weapons
+        if getgenv().hypershotlum.tpall.tpweapons then
+            local da = workspace:FindFirstChild("IgnoreThese") and workspace.IgnoreThese:FindFirstChild("Pickups") and workspace.IgnoreThese.Pickups:FindFirstChild("Weapons")
+            if da then
+                local cf = 1
+                for _, dd in ipairs(da:GetChildren()) do
+                    if dd:IsA("Model") then
+                        local de = dd:FindFirstChild("Center")
+                        if de and de:IsA("BasePart") then
+                            local df = ch.Position + ch.CFrame.LookVector * 10 + Vector3.new(0, -3, 0)
+                            local dg = CFrame.new(df, ch.Position)
+                            dd:SetPrimaryPartCFrame(dg)
+                        elseif dd and dd:IsA("BasePart") then
+                            local df = ch.Position + ch.CFrame.LookVector * 10 + Vector3.new(0, -3, 0)
+                            local dg = CFrame.new(df, ch.Position)
+                            dd.CFrame = dg
+                        end
+                        cf = cf + 1
                     end
-                    cf = cf + 1
                 end
-            else
-                cf = 1
             end
         end
     end
 
-    if bx then
-        for _, dl in ipairs(f:GetChildren()) do
-            if dl:IsA("Model") then
-                dh(dl, by)
+    -- BigHead Logic
+    if getgenv().hypershotlum.bighead.enabled then
+        local by = getgenv().hypershotlum.bighead.size
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("Head") then
+                if v.Head:IsA("BasePart") then
+                    v.Head.Size = Vector3.new(by, by, by)
+                    v.Head.Transparency = 0
+                end
             end
         end
-        local dm = f:FindFirstChild("Mobs")
+        local dm = workspace:FindFirstChild("Mobs")
         if dm then
             for _, dn in ipairs(dm:GetChildren()) do
                 if dn:IsA("Model") then
-                    dh(dn, by)
+                    local do = dn:FindFirstChild("Head")
+                    if do and do:IsA("BasePart") then
+                        do.Size = Vector3.new(by, by, by)
+                        do.Transparency = 0
+                    end
                 end
             end
         end
     end
 end)
 
--- No cooldown and recoil functions
-local og = {}
-local recoil = {}
-
-local function nocooldown()
-    for _, v in next, getgc(true) do
-        if typeof(v) == 'table' and rawget(v, 'CD') then
-            if not og[v] then
-                og[v] = v.CD
-            end
-            rawset(v, 'CD', 0)
-        end
-    end
-end
-
-local function luffy()
-    for _, v in next, getgc(true) do
-        if typeof(v) == 'table' and rawget(v, 'Spread') then
-            if not recoil[v] then
-                recoil[v] = {
-                    Spread = v.Spread,
-                    BaseSpread = v.BaseSpread,
-                    MinCamRecoil = v.MinCamRecoil or Vector3.new(),
-                    MaxCamRecoil = v.MaxCamRecoil or Vector3.new(),
-                    MinRotRecoil = v.MinRotRecoil or Vector3.new(),
-                    MaxRotRecoil = v.MaxRotRecoil or Vector3.new(),
-                    MinTransRecoil = v.MinTransRecoil or Vector3.new(),
-                    MaxTransRecoil = v.MaxTransRecoil or Vector3.new(),
-                    ScopeSpeed = v.ScopeSpeed
-                }
-            end
-
-            rawset(v, 'Spread', 0)
-            rawset(v, 'BaseSpread', 0)
-            rawset(v, 'MinCamRecoil', Vector3.new())
-            rawset(v, 'MaxCamRecoil', Vector3.new())
-            rawset(v, 'MinRotRecoil', Vector3.new())
-            rawset(v, 'MaxRotRecoil', Vector3.new())
-            rawset(v, 'MinTransRecoil', Vector3.new())
-            rawset(v, 'MaxTransRecoil', Vector3.new())
-            rawset(v, 'ScopeSpeed', 100)
-        end
-    end
-end
-
-nocooldown()
-luffy()
-
--- UI Implementation with OrionLib
-local AimbotTab = Window:MakeTab({
-    Name = "Aimbot",
-    Icon = "rbxassetid://4483345875"
-})
-
-AimbotTab:AddToggle({
-    Name = "Enable Silent Aim",
-    Default = getgenv().hypershotlum.silentaim.enabled,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.enabled = Value
-    end
-})
-
-AimbotTab:AddToggle({
-    Name = "Dynamic FOV",
-    Default = getgenv().hypershotlum.silentaim.dynamicfov,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.dynamicfov = Value
-    end
-})
-
-AimbotTab:AddSlider({
-    Name = "FOV Size",
-    Min = 0,
-    Max = 500,
-    Default = getgenv().hypershotlum.silentaim.fov,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.fov = Value
-    end
-})
-
-AimbotTab:AddSlider({
-    Name = "Hit Chance",
-    Min = 1,
-    Max = 100,
-    Default = getgenv().hypershotlum.silentaim.hitchance,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.hitchance = Value
-    end
-})
-
-AimbotTab:AddDropdown({
-    Name = "Hit Part",
-    Options = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "LeftArm", "RightArm", "LeftLeg", "RightLeg", "Random"},
-    Default = getgenv().hypershotlum.silentaim.hitpart,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.hitpart = Value
-    end
-})
-
-AimbotTab:AddToggle({
-    Name = "Magic Bullet",
-    Default = getgenv().hypershotlum.silentaim.magicbullet,
-    Callback = function(Value)
-        getgenv().hypershotlum.silentaim.magicbullet = Value
-    end
-})
-
-local ESPTab = Window:MakeTab({
-    Name = "ESP",
-    Icon = "rbxassetid://4483345875"
-})
-
-ESPTab:AddToggle({
-    Name = "Big Head",
-    Default = getgenv().hypershotlum.bighead.enabled,
-    Callback = function(Value)
-        getgenv().hypershotlum.bighead.enabled = Value
-    end
-})
-
-ESPTab:AddSlider({
-    Name = "Head Size",
-    Min = 1,
-    Max = 10,
-    Default = getgenv().hypershotlum.bighead.size,
-    Callback = function(Value)
-        getgenv().hypershotlum.bighead.size = Value
-    end
-})
-
-local TeleportTab = Window:MakeTab({
-    Name = "Teleport",
-    Icon = "rbxassetid://4483345875"
-})
-
-TeleportTab:AddToggle({
-    Name = "TP Players",
-    Default = getgenv().hypershotlum.tpall.players,
-    Callback = function(Value)
-        getgenv().hypershotlum.tpall.players = Value
-    end
-})
-
-TeleportTab:AddToggle({
-    Name = "TP Bots",
-    Default = getgenv().hypershotlum.tpall.bots,
-    Callback = function(Value)
-        getgenv().hypershotlum.tpall.bots = Value
-    end
-})
-
-TeleportTab:AddSlider({
-    Name = "Offset",
-    Min = 0,
-    Max = 20,
-    Default = getgenv().hypershotlum.tpall.offset,
-    Callback = function(Value)
-        getgenv().hypershotlum.tpall.offset = Value
-    end
-})
-
-local RecoilTab = Window:MakeTab({
-    Name = "Recoil",
-    Icon = "rbxassetid://4483345875"
-})
-
-RecoilTab:AddButton({
-    Name = "No Cooldown",
-    Callback = function()
-        nocooldown()
-    end
-})
-
-RecoilTab:AddButton({
-    Name = "No Recoil",
-    Callback = function()
-        luffy()
-    end
-})
-
--- Keep the UI running
+-- Initialize OrionLib
 OrionLib:Init()
