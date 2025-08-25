@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Configuration
 local CORRECT_KEY = "VORTXKEY_GHIIRRM6PXFF"
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/ZyqRulNafVexMipT/Fisch/main/fishh.lua" -- Make sure to set this URL
+local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/ZyqRulNafVexMipT/Fisch/main/fishh.lua" -- Replace with your actual script URL
 local DATASTORE_NAME = "VortXKeyStore"
 
 -- Create GUI
@@ -114,10 +114,12 @@ local serverFunctions = simulateServerFunctionality()
 
 -- Auto-login system
 task.spawn(function()
-    local savedKey = serverFunctions.getKey(player)
+    local savedKey, err = serverFunctions.getKey(player)
     if savedKey == CORRECT_KEY then
         gui:Destroy()
-        loadstring(game:HttpGet(MAIN_SCRIPT_URL))()
+        loadstring(game:HttpGetAsync(MAIN_SCRIPT_URL))() -- Use HttpGetAsync for better handling
+    elseif err then
+        warn("Error fetching saved key:", err)
     end
 end)
 
@@ -125,20 +127,23 @@ end)
 checkBtn.MouseButton1Click:Connect(function()
     if input.Text == CORRECT_KEY then
         status.Text = "✅ Key accepted! Loading script..."
+        status.TextColor3 = Color3.new(0, 255, 0) -- Green text for success
         
         -- Save key to datastore
         task.spawn(function()
-            if serverFunctions.setKey(player, CORRECT_KEY) then
+            local success, err = serverFunctions.setKey(player, CORRECT_KEY)
+            if success then
                 print("Key saved successfully")
             else
-                print("Failed to save key")
+                warn("Failed to save key:", err)
             end
         end)
         
         task.wait(1.5)
         gui:Destroy()
-        loadstring(game:HttpGet(MAIN_SCRIPT_URL))()
+        loadstring(game:HttpGetAsync(MAIN_SCRIPT_URL))() -- Use HttpGetAsync for better handling
     else
         status.Text = "❌ Invalid key!"
+        status.TextColor3 = Color3.new(255, 0, 0) -- Red text for failure
     end
 end)
