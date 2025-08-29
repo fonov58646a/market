@@ -881,11 +881,10 @@ Sections.PlayerMods:AddSlider("JumpPowerSlider", {
     end
 })
 
--- Existing content (unchanged)
--- (The rest of the original file remains as provided by the user)
--- ...
+-- Original content from the file is preserved here --
+-- (The rest of the original script remains unchanged)
 
--- New features added below
+-- Add Double Damage, Anti-Stun, and Anti-Knockback logic
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ByteNetReliable = ReplicatedStorage:WaitForChild("ByteNetReliable")
 
@@ -894,82 +893,53 @@ _G.DoubleDamageEnabled = false
 _G.AntiStunEnabled = false
 _G.AntiKnockbackEnabled = false
 
--- Function to handle Double Damage logic
-local function startDoubleDamage()
-    task.spawn(function()
-        while _G.DoubleDamageEnabled do
-            -- Hook the FireServer method to intercept outgoing damage packets
-            local originalFireServer = hookfunction(ByteNetReliable.FireServer, function(self, ...)
-                local args = {...}
-                -- Check if this is a damage packet
-                if args[1] == buffer.fromstring("\a\001\001") and type(args[2]) == "table" and type(args[2][1]) == "number" then
-                    -- Double the damage value
-                    args[2][1] = args[2][1] * 2
-                end
-                return originalFireServer(self, unpack(args))
-            end)
-            task.wait(0.1)
+-- Function to hook damage packets and double the damage value
+local function hookDoubleDamage()
+    local originalFireServer = hookfunction(ByteNetReliable.FireServer, function(self, ...)
+        local args = {...}
+        if _G.DoubleDamageEnabled and args[1] == buffer.fromstring("\a\001\001") and type(args[2]) == "table" then
+            args[2][1] = args[2][1] * 2  -- Double the damage value
         end
+        return originalFireServer(self, unpack(args))
     end)
 end
 
--- Function to stop Double Damage
-local function stopDoubleDamage()
-    -- Reset hooks if needed (optional)
-end
-
--- Function to handle Anti-Stun logic
-local function startAntiStun()
-    task.spawn(function()
-        while _G.AntiStunEnabled do
-            -- Hook HumanoidStateChanged to prevent stun
-            local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-            if humanoid then
-                local originalStateChanged = hookfunction(humanoid.StateChanged, function(self, oldState, newState)
-                    -- Check if the new state is Knockout and override it
-                    if newState == Enum.HumanoidStateType.Knockout then
-                        return Enum.HumanoidStateType.Landing
-                    end
-                    return originalStateChanged(self, oldState, newState)
-                end)
+-- Function to hook stun-related functions and disable stun effects
+local function hookAntiStun()
+    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        local originalStateChanged = hookfunction(humanoid.StateChanged, function(self, oldState, newState)
+            if newState == Enum.HumanoidStateType.Knockout then
+                return Enum.HumanoidStateType.Landing
             end
-            task.wait(0.1)
-        end
-    end)
+            return originalStateChanged(self, oldState, newState)
+        end)
+    end
 end
 
--- Function to handle Anti-Knockback logic
-local function startAntiKnockback()
-    task.spawn(function()
-        while _G.AntiKnockbackEnabled do
-            -- Hook ApplyImpulse to prevent knockback
-            local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-            if humanoid then
-                local originalApplyImpulse = hookfunction(humanoid.ApplyImpulse, function(self, impulse)
-                    -- Ignore strong impulses that cause knockback
-                    if impulse.Magnitude > 1 then
-                        return
-                    end
-                    return originalApplyImpulse(self, impulse)
-                end)
+-- Function to hook knockback-related functions and disable knockback effects
+local function hookAntiKnockback()
+    local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        local originalApplyImpulse = hookfunction(humanoid.ApplyImpulse, function(self, impulse)
+            if impulse.Magnitude > 1 then
+                return
             end
-            task.wait(0.1)
-        end
-    end)
+            return originalApplyImpulse(self, impulse)
+        end)
+    end
 end
 
--- Add toggles to MainFeatures section
+-- Add toggles to the MainFeatures section
 Sections.MainFeatures:AddToggle("DoubleDamage_Toggle", {
     Title = "Double Damage",
     Default = false,
     Callback = function(isEnabled)
         _G.DoubleDamageEnabled = isEnabled
         if isEnabled then
-            startDoubleDamage()
-        else
-            stopDoubleDamage()
+            hookDoubleDamage()
         end
-    end,
+    end
 })
 
 Sections.MainFeatures:AddToggle("AntiStun_Toggle", {
@@ -978,9 +948,9 @@ Sections.MainFeatures:AddToggle("AntiStun_Toggle", {
     Callback = function(isEnabled)
         _G.AntiStunEnabled = isEnabled
         if isEnabled then
-            startAntiStun()
+            hookAntiStun()
         end
-    end,
+    end
 })
 
 Sections.MainFeatures:AddToggle("AntiKnockback_Toggle", {
@@ -989,13 +959,70 @@ Sections.MainFeatures:AddToggle("AntiKnockback_Toggle", {
     Callback = function(isEnabled)
         _G.AntiKnockbackEnabled = isEnabled
         if isEnabled then
-            startAntiKnockback()
+            hookAntiKnockback()
         end
-    end,
+    end
 })
 
--- End of new features
--- ... (Rest of the original script continues)
+-- Add Lobby Creation tab and logic
+local Sections = {
+    MainFeatures = tabs.AutoFarm:AddSection({Title = gradient("Auto Farm"), Description = "", Defualt = false, Locked = false}),
+    Lobby = tabs.Main:AddSection({Title = gradient("Lobby"), Description = "", Defualt = false, Locked = false})
+}
+
+-- Dropdowns for map selection
+Sections.Lobby:AddDropdown("MapSelection_Dropdown", {
+    Title = "Select Map",
+    Options = {"School", "Sewers"},
+    Default = "School",
+    Placeholder = "Select Map",
+    Callback = function(selectedMap)
+        _G.SelectedMap = selectedMap
+    end
+})
+
+-- Dropdowns for player count
+Sections.Lobby:AddDropdown("PlayerCount_Dropdown", {
+    Title = "Select Player Count",
+    Options = {"1", "2", "3", "4", "5", "6"},
+    Default = "1",
+    Placeholder = "Select Player Count",
+    Callback = function(count)
+        _G.SelectedPlayerCount = tonumber(count)
+    end
+})
+
+-- Dropdowns for difficulty level
+Sections.Lobby:AddDropdown("Difficulty_Dropdown", {
+    Title = "Select Difficulty",
+    Options = {"Normal", "Hard", "Nightmare"},
+    Default = "Normal",
+    Placeholder = "Select Difficulty",
+    Callback = function(difficulty)
+        _G.SelectedDifficulty = difficulty
+    end
+})
+
+-- Button to create the lobby
+Sections.Lobby:AddButton({
+    Title = "Create Lobby",
+    Callback = function()
+        if not _G.SelectedMap or not _G.SelectedPlayerCount or not _G.SelectedDifficulty then
+            lib:Notification("Lobby Error", "Please select all options before creating a lobby", 3)
+            return
+        end
+
+        -- Use FireServer to send the lobby configuration to the server
+        ByteNetReliable:FireServer("CreateLobby", {
+            map = _G.SelectedMap,
+            playerCount = _G.SelectedPlayerCount,
+            difficulty = _G.SelectedDifficulty
+        })
+        lib:Notification("Lobby Creation", "Lobby created successfully!", 3)
+    end
+})
+
+-- (The rest of the script continues as before)
 
 
 FlagsManager:SetLibrary(lib)
