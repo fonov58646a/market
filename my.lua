@@ -427,51 +427,6 @@ Sections.MainFeatures:AddToggle("AutoCollect_Toggle", {
     end,
 })
 
-_G.DoubleDamageEnabled = false
-local originalFireServer
-local hooked = false
-
-local function startDoubleDamage()
-    task.spawn(function()
-        if hooked then return end
-        hooked = true
-        originalFireServer = hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer,
-            newcclosure(function(self, ...)
-                local args = {...}
-                -- damage packet signature: buffer("\a\001\001") + {timestamp}
-                if typeof(args[1]) == "buffer" and typeof(args[2]) == "table" then
-                    local sig = buffer.tostring(args[1])
-                    if sig == "\a\001\001" and typeof(args[2][1]) == "number" then
-                        args[2][1] = args[2][1] * 2      -- double damage
-                    end
-                end
-                return originalFireServer(self, unpack(args))
-            end)
-        )
-    end)
-end
-
-local function stopDoubleDamage()
-    if hooked and originalFireServer then
-        hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer, originalFireServer)
-        hooked = false
-    end
-end
-
-Sections.MainFeatures:AddToggle("DoubleDamage_Toggle", {
-    Title = "Double Damage",
-    Default = false,
-    Callback = function(isEnabled)
-        _G.DoubleDamageEnabled = isEnabled
-        if isEnabled then
-            startDoubleDamage()
-        else
-            stopDoubleDamage()
-        end
-    end,
-})
-
-
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
