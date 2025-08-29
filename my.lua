@@ -427,6 +427,51 @@ Sections.MainFeatures:AddToggle("AutoCollect_Toggle", {
     end,
 })
 
+_G.DoubleDamageEnabled = false
+local originalFireServer
+local hooked = false
+
+local function startDoubleDamage()
+    task.spawn(function()
+        if hooked then return end
+        hooked = true
+        originalFireServer = hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer,
+            newcclosure(function(self, ...)
+                local args = {...}
+                -- damage packet signature: buffer("\a\001\001") + {timestamp}
+                if typeof(args[1]) == "buffer" and typeof(args[2]) == "table" then
+                    local sig = buffer.tostring(args[1])
+                    if sig == "\a\001\001" and typeof(args[2][1]) == "number" then
+                        args[2][1] = args[2][1] * 2      -- double damage
+                    end
+                end
+                return originalFireServer(self, unpack(args))
+            end)
+        )
+    end)
+end
+
+local function stopDoubleDamage()
+    if hooked and originalFireServer then
+        hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer, originalFireServer)
+        hooked = false
+    end
+end
+
+Sections.MainFeatures:AddToggle("DoubleDamage_Toggle", {
+    Title = "Double Damage",
+    Default = false,
+    Callback = function(isEnabled)
+        _G.DoubleDamageEnabled = isEnabled
+        if isEnabled then
+            startDoubleDamage()
+        else
+            stopDoubleDamage()
+        end
+    end,
+})
+
+
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -713,50 +758,6 @@ Players.PlayerRemoving:Connect(function()
 end)
 
 updateDropdown()
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ByteNetReliable    = ReplicatedStorage:WaitForChild("ByteNetReliable")
-
-local originalFireServer
-local hooked = false
-local enabled = false
-
-local function applyHook()
-    if hooked then return end
-    hooked = true
-    originalFireServer = hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer, newcclosure(function(self, ...)
-        local args = {...}
-        -- damage packets in Hunty Zombies use "\a\001\001" as first arg
-        if enabled and typeof(args[1]) == "buffer" then
-            local str = buffer.tostring(args[1])
-            if str == "\a\001\001" and typeof(args[2]) == "table" and typeof(args[2][1]) == "number" then
-                args[2][1] = args[2][1] * 2        -- double the damage value
-            end
-        end
-        return originalFireServer(self, unpack(args))
-    end))
-end
-
-local function removeHook()
-    if hooked and originalFireServer then
-        hookfunction(getrawmetatable(ByteNetReliable).__index.FireServer, originalFireServer)
-        hooked = false
-    end
-end
-
-Sections.MainFeatures:AddToggle("DoubleDamage_Toggle", {
-    Title = "Double Damage",
-    Default = false,
-    Callback = function(state)
-        enabled = state
-        if enabled then
-            applyHook()
-        else
-            removeHook()
-        end
-    end
-})
-
 
 -- Unlimited Zoom
 local defaultMinZoom = LocalPlayer.CameraMinZoomDistance
