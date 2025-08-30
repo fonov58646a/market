@@ -1,998 +1,382 @@
-local Players = game:GetService("Players")
+local player = game:GetService("Players").LocalPlayer
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
-local player = Players.LocalPlayer
-
-local blur = Instance.new("BlurEffect", Lighting)
-blur.Size = 0
-TweenService:Create(blur, TweenInfo.new(0.5), {Size = 24}):Play()
-
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "StellarLoader"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(1, 0, 1, 0)
-frame.BackgroundTransparency = 1
-
-local bg = Instance.new("Frame", frame)
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
-bg.BackgroundTransparency = 1
-bg.ZIndex = 0
-TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
-
-local word = "STELLAR"
-local letters = {}
-
-local function tweenOutAndDestroy()
-	for _, label in ipairs(letters) do
-		TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1, TextSize = 20}):Play()
-	end
-	TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-	TweenService:Create(blur, TweenInfo.new(0.5), {Size = 0}):Play()
-	wait(0.6)
-	screenGui:Destroy()
-	blur:Destroy()
-end
-
-for i = 1, #word do
-	local char = word:sub(i, i)
-
-	local label = Instance.new("TextLabel")
-	label.Text = char
-	label.Font = Enum.Font.GothamBlack
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.TextStrokeTransparency = 1 
-	label.TextTransparency = 1
-	label.TextScaled = false
-	label.TextSize = 30 
-	label.Size = UDim2.new(0, 60, 0, 60)
-	label.AnchorPoint = Vector2.new(0.5, 0.5)
-	label.Position = UDim2.new(0.5, (i - (#word / 2 + 0.5)) * 65, 0.5, 0)
-	label.BackgroundTransparency = 1
-	label.Parent = frame
-
-	local gradient = Instance.new("UIGradient")
-	gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 170, 255)), 
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 100, 160))   
-	})
-	gradient.Rotation = 90
-	gradient.Parent = label
-
-	local tweenIn = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 0, TextSize = 60})
-	tweenIn:Play()
-
-	table.insert(letters, label)
-	wait(0.25)
-end
-
-wait(2)
-
-tweenOutAndDestroy()
- local ScreenGui = Instance.new("ScreenGui")
-    local AdFrame = Instance.new("Frame")
-    local DiscordLabel = Instance.new("TextLabel")
-    local CopyButton = Instance.new("TextButton")
-    local ExitButton = Instance.new("TextButton")
-    local WaitButton = Instance.new("TextButton")
-    local UIGradientFrame = Instance.new("UIGradient")
-    local UIGradientText = Instance.new("UIGradient")
-    
-    ScreenGui.Name = "AdsGui"
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    ScreenGui.ResetOnSpawn = false
-    
-    AdFrame.Name = "AdFrame"
-    AdFrame.Parent = ScreenGui
-    AdFrame.Size = UDim2.new(0.4, 0, 0.3, 0)
-    AdFrame.Position = UDim2.new(0.5, 0, 0.35, 0)
-    AdFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    AdFrame.BorderSizePixel = 2
-    AdFrame.Draggable = true
-    AdFrame.Active = true
-    AdFrame.BorderColor3 = Color3.fromRGB(128, 0, 128)
-
-    UIGradientFrame.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128)) 
-    }
-    UIGradientFrame.Parent = AdFrame
-    
-    DiscordLabel.Name = "DiscordLabel"
-    DiscordLabel.Parent = AdFrame
-    DiscordLabel.Size = UDim2.new(1, 0, 0.6, 0)
-    DiscordLabel.BackgroundTransparency = 1
-    DiscordLabel.Text = "Stellar Hub"
-    DiscordLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DiscordLabel.TextSize = 22
-    DiscordLabel.TextWrapped = true
-
-    UIGradientText.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 200)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128))
-    }
-    UIGradientText.Parent = DiscordLabel
-    
-    CopyButton.Name = "CopyButton"
-    CopyButton.Parent = AdFrame
-    CopyButton.Size = UDim2.new(0.4, 0, 0.2, 0)
-    CopyButton.Position = UDim2.new(0.1, 0, 0.7, 0)
-    CopyButton.Text = "Copy Link Discord"
-    CopyButton.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-    CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    
-    ExitButton.Name = "ExitButton"
-    ExitButton.Parent = AdFrame
-    ExitButton.Size = UDim2.new(0.4, 0, 0.2, 0)
-    ExitButton.Position = UDim2.new(0.5, 0, 0.7, 0)
-    ExitButton.Text = "Exit"
-    ExitButton.Visible = false
-    ExitButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    ExitButton.TextColor3 = Color3.fromRGB(255, 255, 255) 
-    
-    WaitButton.Name = "WaittoExit"
-    WaitButton.Parent = AdFrame
-    WaitButton.Size = UDim2.new(0.4, 0, 0.2, 0)
-    WaitButton.Position = UDim2.new(0.5, 0, 0.7, 0)
-    WaitButton.Text = "Waitting Delay Exit"
-    WaitButton.Visible = true
-    WaitButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    WaitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    
-    task.delay(5, function()
-        WaitButton.Visible = false
-        ExitButton.Visible = true
-    end)
-    
-    CopyButton.MouseButton1Click:Connect(function()
-        if setclipboard then
-            setclipboard("https://discord.gg/FmMuvkaWvG")
-            task.wait()
-            CopyButton.Text = "Copied To Discord Link"
-            task.wait(0.6)
-            CopyButton.Text = "Copy Link Discord"
-        end
-    end)
-    
-    ExitButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
-repeat task.wait() until game.Players.LocalPlayer and game.Players.LocalPlayer.Character
-
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/x2zu/OPEN-SOURCE-UI-ROBLOX/main/X2ZU%20UI%20ROBLOX%20OPEN%20SOURCE/Lib"))()
-local FlagsManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/x2zu/OPEN-SOURCE-UI-ROBLOX/main/X2ZU%20UI%20ROBLOX%20OPEN%20SOURCE/ConfigManager"))()
-
-local GetService, cloneref = game.GetService, cloneref or function(r)return r end
-local services = setmetatable({}, {
-    __index = function(self, service)
-        local r = cloneref(GetService(game, service))
-        self[service] = r
-        return r
-    end
-})
-
-local genv = getgenv and getgenv() or shared or _G or {}
-local LRM_UserNote = "Owner"
--- local LRM_ScriptVersion = "110"
-
-local function RoleChecker()
-    if string.find(LRM_UserNote, "Ad Reward") then
-        return "Free Version"
-    elseif string.find(LRM_UserNote, "Premium") then
-        return "Premium Version"
-    elseif string.find(LRM_UserNote, "Owner") then
-        return "Developer x2zu"
-    else
-        return "No Role Assigned"
-    end
-end
-
-local function formatVersion(version)
-    local formattedVersion = "v" .. version:sub(2):gsub(".", "%0.")
-    return formattedVersion:sub(1, #formattedVersion - 1)
-end
-
-local function interpolate_color(color1, color2, t)
-    local r = math.floor((1 - t) * color1[1] + t * color2[1])
-    local g = math.floor((1 - t) * color1[2] + t * color2[2])
-    local b = math.floor((1 - t) * color1[3] + t * color2[3])
-    return string.format("#%02x%02x%02x", r, g, b)
-end
-
-local function hex_to_rgb(hex)
-    return {
-        tonumber(hex:sub(1, 2), 16),
-        tonumber(hex:sub(3, 4), 16),
-        tonumber(hex:sub(5, 6), 16)
-    }
-end
-
-local function gradient(word)
-    if not word or #word == 0 then return "Error" end
-
-local start_color = hex_to_rgb("ea00ff")
-local end_color = hex_to_rgb("5700ff")
-
-
-    if genv.GradientColor then
-        start_color = hex_to_rgb(genv.GradientColor.startingColor)
-        end_color = hex_to_rgb(genv.GradientColor.endingColor)
-    end
-
-    local gradient_word = ""
-    local word_len = #word
-    local step = 1.0 / math.max(word_len - 1, 1)
-
-    for i = 1, word_len do
-        local t = step * (i - 1)
-        local color = interpolate_color(start_color, end_color, t)
-        gradient_word = gradient_word .. string.format('<font color="%s">%s</font>', color, word:sub(i, i))
-    end
-
-    return gradient_word
-end
-
-local main = lib:Load({
-    Title = "Hunty Zombie 〢 " .. gradient("discord.gg/x2zu") .. " 〢 " .. RoleChecker(),
-    ToggleButton = "rbxassetid://105059922903197",
-    BindGui = Enum.KeyCode.RightControl,
-})
-
-local tabs = {
-    Information = main:AddTab("Information"),
-    AutoFarm = main:AddTab("General"),
-    Config = main:AddTab("Settings"),
-}
-
-main:SelectTab()
-
-local Sections = {
-    Welcome = tabs.Information:AddSection({Defualt = true , Locked = true}),
-    Discord = tabs.Information:AddSection({Defualt = true , Locked = true}),
-    MainFeatures = tabs.AutoFarm:AddSection({Title = gradient("Auto Farm"), Description = "", Defualt = false , Locked = false}),
-    EspFeatures = tabs.AutoFarm:AddSection({Title = gradient("ESP"), Description = "", Defualt = false , Locked = false}),
-    PlayerMods = tabs.AutoFarm:AddSection({Title = gradient("Character"), Description = "", Defualt = false , Locked = false}),
-}
-
-Sections.Discord:AddParagraph({
-    Title = '<font color="rgb(255,0,0)">Found a bug?</font>',
-    Description = "Please report by joining our Discord."
-})
-
-Sections.Discord:AddButton({
-    Title = "Copy Discord Invite",
-    Callback = function()
-        setclipboard("https://discord.gg/FmMuvkaWvG")
-        lib:Notification("Discord","Copied invite to clipboard, just paste it.", 5)
-    end,
-})
-
-genv.WelcomeParagraph = Sections.Welcome:AddParagraph({
-    Title = gradient("Loading..."),
-    Description = "Please wait..\nIf you've been stuck on this for a long time please join our discord and report it."
-})
-
-genv.WelcomeParagraph:SetTitle(gradient("Information"))
-genv.WelcomeParagraph:SetDesc([[<font color="rgb(255,255,255)">Welcome to <b>StellarHub</b>!</font>
-<font color="rgb(200,200,200)">
-Thank you for choosing StellarHub. We're always working on improvements and features.
-If you experience issues or have feedback, don't hesitate to join our Discord server.
-</font>
-
-<font color="rgb(255,215,0)"><b>Recent Updates:</b></font>
-<font color="rgb(210,210,210)">[+] Added Auto Heli</font>
-<font color="rgb(210,210,210)">[+] Added Auto Generator</font>
-<font color="rgb(210,210,210)">[+] Added Auto Radio</font>
-<font color="rgb(210,210,210)">[+] Added Fast Farming Better than other!</font>
-<font color="rgb(0,255,200)">
-Join the Discord for help, suggestions, and the latest updates.
-</font>]])
-local player = game.Players.LocalPlayer
-local remote = game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable")
-
-
-_G.AutoSkills_Enabled = false
-_G.SelectedSkills = { "Z", "X", "C", "G", "E" } 
-local Skills = {
-    Z = function()
-        local args = { buffer.fromstring("\a\003\001"), {1755858750.110956} }
-        remote:FireServer(unpack(args))
-    end,
-    X = function()
-        local args = { buffer.fromstring("\a\005\001"), {1755858758.302091} }
-        remote:FireServer(unpack(args))
-    end,
-    C = function()
-        local args = { buffer.fromstring("\a\006\001"), {1755858762.557009} }
-        remote:FireServer(unpack(args))
-    end,
-    G = function()
-        local args = { buffer.fromstring("\a\a\001"), {1755858775.553812} }
-        remote:FireServer(unpack(args))
-    end,
-    E = function()
-        local args = { buffer.fromstring("\v") }
-        remote:FireServer(unpack(args))
-    end,
-}
-
-
-task.spawn(function()
-    while task.wait(1) do
-        if _G.AutoSkills_Enabled then
-            for _, key in ipairs(_G.SelectedSkills) do
-                if Skills[key] then
-                    Skills[key]()
-                    task.wait(0.3)
-                end
-            end
-        end
-    end
-end)
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-local RepStorage = game:GetService("ReplicatedStorage")
-local ByteNetReliable = RepStorage:WaitForChild("ByteNetReliable")
-_G.AutoTeleportEntities_Enabled = false
-_G.AutoAttack_Enabled = false
-_G.AutoCollect_Enabled = false
-
-local function startAutoTeleportEntities()
-    task.spawn(function()
-        while _G.AutoTeleportEntities_Enabled do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                hrp = player.Character.HumanoidRootPart
-                for _, entity in ipairs(workspace.Entities:GetChildren()) do
-                    if entity:IsA("Model") and entity:FindFirstChild("HumanoidRootPart") then
-                        hrp.CFrame = entity.HumanoidRootPart.CFrame * CFrame.new(0, 2, 3)
-                        task.wait(0.1)
-                    elseif entity:IsA("BasePart") then
-                        hrp.CFrame = entity.CFrame * CFrame.new(0, 2, 3)
-                        task.wait(0.1)
-                    end
-                end
-            end
-            task.wait()
-        end
-    end)
-end
-
-Sections.MainFeatures:AddToggle("AutoTeleportEntities_Toggle", {
-    Title = "Auto Teleport Entities",
-    Default = true,
-    Callback = function(isEnabled)
-        _G.AutoTeleportEntities_Enabled = isEnabled
-        if isEnabled then
-            startAutoTeleportEntities()
-        end
-    end,
-})
-local function startAutoAttack()
-    task.spawn(function()
-        while _G.AutoAttack_Enabled do
-            local args = {
-                buffer.fromstring("\a\001\001"),
-                { os.clock() }
-            }
-            ByteNetReliable:FireServer(unpack(args))
-            task.wait()
-        end
-    end)
-end
-
-Sections.MainFeatures:AddToggle("AutoAttack_Toggle", {
-    Title = "Auto Attack",
-    Default = true,
-    Callback = function(isEnabled)
-        _G.AutoAttack_Enabled = isEnabled
-        if isEnabled then
-            startAutoAttack()
-        end
-    end,
-})
-local function startAutoCollect()
-    task.spawn(function()
-        while _G.AutoCollect_Enabled do
-            if hrp then
-                for _, drop in ipairs(workspace.DropItems:GetChildren()) do
-                    if drop:IsA("Model") and drop.PrimaryPart then
-                        hrp.CFrame = drop.PrimaryPart.CFrame
-                    elseif drop:IsA("BasePart") then
-                        hrp.CFrame = drop.CFrame
-                    end
-                end
-            end
-            task.wait(0.2)
-        end
-    end)
-end
-
-Sections.MainFeatures:AddToggle("AutoCollect_Toggle", {
-    Title = "Auto Collect Drops",
-    Default = true,
-    Callback = function(isEnabled)
-        _G.AutoCollect_Enabled = isEnabled
-        if isEnabled then
-            startAutoCollect()
-        end
-    end,
-})
-
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-
-Sections.MainFeatures:AddToggle("AutoRadio_Toggle", {
-    Title = "Auto Radio (World 1)",
-    Description = "Active this feature after clear all monster.",
-    Default = false,
-    Callback = function(isEnabled)
-        _G.AutoRadio_Enabled = isEnabled
-
-        if isEnabled then
-            task.spawn(function()
-                while _G.AutoRadio_Enabled do
-                    local hasEntities = false
-                    for _, e in ipairs(workspace.Entities:GetChildren()) do
-                        if e:IsA("Model") then
-                            hasEntities = true
-                            break
-                        end
-                    end
-                    local hasDrops = #workspace.DropItems:GetChildren() > 0
-
-                    if not hasEntities and not hasDrops then
-                        local radioPart = workspace.School.Rooms.RooftopBoss:FindFirstChild("RadioObjective")
-                        if radioPart and radioPart:IsA("BasePart") then
-                            local prompt = radioPart:FindFirstChildWhichIsA("ProximityPrompt", true)
-                            if prompt then
-                                while _G.AutoRadio_Enabled and prompt.Enabled do
-                                    hrp.CFrame = radioPart.CFrame
-                                    fireproximityprompt(prompt)
-                                    task.wait(0.2)
-                                end
-                            end
-                        end
-                    end
-
-                    task.wait(0.3)
-                end
-            end)
-        end
-    end,
-})
-
-Sections.MainFeatures:AddToggle("AutoHeli_Toggle", {
-    Title = "Auto Helicopter (World 1)",
-    Description = "Active this feature after clear all monster.",
-    Default = false,
-    Callback = function(isEnabled)
-        _G.AutoHeli_Enabled = isEnabled
-        if isEnabled then
-            task.spawn(function()
-                local player = game.Players.LocalPlayer
-                local character = player.Character or player.CharacterAdded:Wait()
-                local hrp = character:WaitForChild("HumanoidRootPart")
-
-                while _G.AutoHeli_Enabled do
-                    local hasEntities = false
-                    for _, e in ipairs(workspace.Entities:GetChildren()) do
-                        if e:IsA("Model") then
-                            hasEntities = true
-                            break
-                        end
-                    end
-                    local hasDrops = #workspace.DropItems:GetChildren() > 0
-
-                    if not hasEntities and not hasDrops then
-                        local heliObj = workspace.School.Rooms.RooftopBoss:FindFirstChild("HeliObjective")
-                        if heliObj then
-                            local prompt = heliObj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                            if prompt and prompt.Enabled then
-                                hrp.CFrame = heliObj.CFrame + Vector3.new(0, 2, 0)
-                                task.wait(0.2)
-                                fireproximityprompt(prompt)
-                                repeat
-                                    task.wait(1)
-                                until not _G.AutoHeli_Enabled or not prompt:IsDescendantOf(workspace) or not prompt.Enabled
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end,
-})
-
-
-Sections.MainFeatures:AddToggle("AutoGen_Toggle", {
-    Title = "Auto Generator (World 2)",
-    Default = false,
-    Callback = function(isEnabled)
-        _G.AutoGen_Enabled = isEnabled
-
-        if isEnabled then
-            task.spawn(function()
-                while _G.AutoGen_Enabled do
-                    local hasEntities = false
-                    for _, e in ipairs(workspace.Entities:GetChildren()) do
-                        if e:IsA("Model") then
-                            hasEntities = true
-                            break
-                        end
-                    end
-                    local hasDrops = #workspace.DropItems:GetChildren() > 0
-
-                    if not hasEntities and not hasDrops then
-                        local generator = workspace.Sewers.Rooms.BossRoom:FindFirstChild("generator")
-                        if generator then
-                            local gen = generator:FindFirstChild("gen")
-                            local pom = gen and gen:FindFirstChild("pom")
-
-                            if gen and pom and pom.Enabled then
-                                while _G.AutoGen_Enabled and pom.Enabled do
-                                    hrp.CFrame = gen.CFrame
-                                    fireproximityprompt(pom)
-                                    task.wait(0.2)
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end,
-})
-
-
-Sections.MainFeatures:AddToggle("AutoSkills_Toggle", {
-    Title = "Auto Use Skills",
-    Default = true,
-    Callback = function(isEnabled)
-        _G.AutoSkills_Enabled = isEnabled
-        if isEnabled then
-            task.spawn(function()
-                while _G.AutoSkills_Enabled do
-                    for _, skill in ipairs(_G.SelectedSkills) do
-                        if Skills[skill] then
-                            pcall(function()
-                                Skills[skill]()
-                            end)
-                        end
-                    end
-                    task.wait(1)
-                end
-            end)
-        end
-    end,
-})
-
-Sections.MainFeatures:AddDropdown("SelectSkills_Dropdown", {
-    Title = "Select Skills",
-    Options = { "Z", "X", "C", "G", "E" },
-    Default = { "Z", "X", "C", "G", "E" }, 
-    PlaceHolder = "Select Skills",
-    Multiple = true,
-    Callback = function(selected)
-        _G.SelectedSkills = selected
-    end,
-})
-
-local entitiesFolder = workspace:WaitForChild("Entities")
-
-local espEnabled = false
-
-local function addHighlight(mob)
-    if not espEnabled then return end
-    if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
-        if not mob:FindFirstChild("ESPHighlight") then
-            local highlight = Instance.new("Highlight")
-            highlight.Name = "ESPHighlight"
-            highlight.Adornee = mob
-            highlight.FillColor = Color3.fromRGB(255, 0, 0) 
-            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-            highlight.FillTransparency = 0.5
-            highlight.OutlineTransparency = 0
-            highlight.Parent = mob
-        end
-    end
-end
-
-local function removeAllHighlights()
-    for _, mob in ipairs(entitiesFolder:GetChildren()) do
-        local esp = mob:FindFirstChild("ESPHighlight")
-        if esp then
-            esp:Destroy()
-        end
-    end
-end
-
-local function updateESP()
-    if espEnabled then
-        for _, mob in ipairs(entitiesFolder:GetChildren()) do
-            addHighlight(mob)
-        end
-    else
-        removeAllHighlights()
-    end
-end
-
-Sections.EspFeatures:AddToggle("MobESP", {
-    Title = "ESP Zombie",
-    Default = false,
-    Callback = function(state)
-        espEnabled = state
-        updateESP()
-    end
-})
-
-entitiesFolder.ChildAdded:Connect(function(mob)
-    task.wait(0.1)
-    if espEnabled then
-        addHighlight(mob)
-    end
-end)
-
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local blockOxygen = false
-
-
-local LocalPlayer = Players.LocalPlayer
-local currentDropdown = nil
-
-local function getPlayerList()
-    local list = {}
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer then
-            table.insert(list, p.DisplayName)
-        end
-    end
-    return list
-end
-
-local function teleportToPlayerExact(target)
-    local characters = workspace:FindFirstChild("Characters")
-    if not characters then return end
-
-    local targetChar = characters:FindFirstChild(target)
-    local myChar = characters:FindFirstChild(LocalPlayer.Name)
-
-    if targetChar and myChar then
-        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-        local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-        if targetHRP and myHRP then
-            myHRP.CFrame = targetHRP.CFrame + Vector3.new(2, 0, 0)
-        end
-    end
-end
-
-local function updateDropdown()
-    if currentDropdown and currentDropdown.Destroy then
-        currentDropdown:Destroy()
-    end
-
-    currentDropdown = Sections.PlayerMods:AddDropdown("TeleportPlayerDropdown", {
-        Title = "Teleport to Player",
-        Description = "Select player to teleport",
-        Options = getPlayerList(),
-        Default = "",
-        PlaceHolder = "Search Player",
-        Multiple = false,
-        Callback = function(selectedDisplayName)
-            for _, p in pairs(Players:GetPlayers()) do
-                if p.DisplayName == selectedDisplayName then
-                    teleportToPlayerExact(p.Name)
-                    lib:Notification("STELLARHUB", "Teleported to " .. p.DisplayName, 3)
-                    break
-                end
-            end
-        end
-    })
-end
-
-Players.PlayerAdded:Connect(function()
-    task.delay(0.1, updateDropdown)
-end)
-
-Players.PlayerRemoving:Connect(function()
-    task.delay(0.1, updateDropdown)
-end)
-
-updateDropdown()
-
--- Unlimited Zoom
-local defaultMinZoom = LocalPlayer.CameraMinZoomDistance
-local defaultMaxZoom = LocalPlayer.CameraMaxZoomDistance
-
-Sections.PlayerMods:AddToggle("UnlimitedZoomToggle", {
-    Title = "Unlimited Zoom",
-    Default = false,
-    Callback = function(state)
-        if state then
-            LocalPlayer.CameraMinZoomDistance = 0.5
-            LocalPlayer.CameraMaxZoomDistance = 9999
-        else
-            LocalPlayer.CameraMinZoomDistance = defaultMinZoom
-            LocalPlayer.CameraMaxZoomDistance = defaultMaxZoom
-        end
-    end
-})
-
--- Infinity Jump
-local ijump = false
-Sections.PlayerMods:AddToggle("InfinityJumpToggle", {
-    Title = "Infinity Jump",
-    Default = false,
-    Callback = function(val)
-        ijump = val
-    end
-})
-
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if ijump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-    end
-end)
-
--- ==============================
--- FLOATING PLATFORM SCRIPT
--- ==============================
-
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local floatPart
-local floatConnection
+local screenGui = Instance.new("ScreenGui")
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
 
-local function floatingPlat(enabled)
-    if enabled then
-        if not floatPart then
-            floatPart = Instance.new("Part")
-            floatPart.Size = Vector3.new(6, 1, 6)
-            floatPart.Anchored = true
-            floatPart.Transparency = 0.5
-            floatPart.BrickColor = BrickColor.new("Really black")
-            floatPart.Parent = workspace
-        end
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+local gradient = Instance.new("UIGradient")
+gradient.Rotation = 45
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 10, 40)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 50, 150)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 20, 80))
+}
+gradient.Parent = background
+background.Parent = screenGui
 
-        if not floatConnection then
-            floatConnection = RunService.RenderStepped:Connect(function()
-                local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    floatPart.CFrame = CFrame.new(hrp.Position - Vector3.new(0, 3, 0))
-                end
-            end)
-        end
-    else
-        if floatConnection then
-            floatConnection:Disconnect()
-            floatConnection = nil
-        end
-        if floatPart then
-            floatPart:Destroy()
-            floatPart = nil
-        end
-    end
-end
-
--- ==============================
--- UI TOGGLE
--- ==============================
-Sections.PlayerMods:AddToggle("EnableFloatToggle", {
-    Title = "Enable Float",
-    Default = false,
-    Description = "Enable floating platform under player",
-    Callback = function(enabled)
-        floatingPlat(enabled)
-    end
-})
-
--- Universal No Clip
-local universalNoclip = false
-local originalCollisionState = {}
-
-Sections.PlayerMods:AddToggle("UniversalNoClipToggle", {
-    Title = "Universal No Clip",
-    Default = true,
-    Callback = function(val)
-        universalNoclip = val
-        if val then
-            lib:Notification("STELLARHUB", "Universal Noclip Active", 3)
-        else
-            for part, state in pairs(originalCollisionState) do
-                if part and part:IsA("BasePart") then
-                    part.CanCollide = state
-                end
-            end
-            originalCollisionState = {}
-            lib:Notification("STELLARHUB", "Universal Noclip Disabled", 3)
-        end
-    end
-})
-
-game:GetService("RunService").Stepped:Connect(function()
-    if not universalNoclip then return end
-
-    local char = LocalPlayer.Character
-    if char then
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                originalCollisionState[part] = true
-                part.CanCollide = false
-            end
-        end
-    end
-
-    for _, model in ipairs(workspace:GetChildren()) do
-        if model:IsA("Model") and model:FindFirstChildWhichIsA("VehicleSeat", true) then
-            for _, part in ipairs(model:GetDescendants()) do
-                if part:IsA("BasePart") and part.CanCollide then
-                    originalCollisionState[part] = true
-                    part.CanCollide = false
-                end
-            end
-        end
+spawn(function()
+    while true do
+        gradient.Rotation = (gradient.Rotation + 1) % 360
+        RunService.RenderStepped:Wait()
     end
 end)
 
--- Walk Speed Slider
-Sections.PlayerMods:AddSlider("WalkSpeedSlider", {
-    Title = "Walk Speed",
-    Default = 20,
-    Min = 16,
-    Max = 200,
-    Callback = function(val)
-        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum.WalkSpeed = val end
-    end
-})
+local function createStar()
+    local star = Instance.new("Frame")
+    star.Size = UDim2.new(0, math.random(6, 12), 0, math.random(6, 12))
+    star.BackgroundColor3 = Color3.fromRGB(math.random(180, 255), math.random(150, 255), math.random(200, 255))
+    star.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    star.BackgroundTransparency = 0.3
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = star
+    local glow = Instance.new("ImageLabel")
+    glow.Image = "rbxassetid://243098098"
+    glow.Size = UDim2.new(2.5, 0, 2.5, 0)
+    glow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    glow.AnchorPoint = Vector2.new(0.5, 0.5)
+    glow.BackgroundTransparency = 1
+    glow.ImageTransparency = 0.5
+    glow.Parent = star
+    star.Parent = background
 
--- Jump Power Slider
-Sections.PlayerMods:AddSlider("JumpPowerSlider", {
-    Title = "Jump Power",
-    Default = 35,
-    Min = 50,
-    Max = 500,
-    Step = 10,
-    Callback = function(val)
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.UseJumpPower = true
-                hum.JumpPower = val
-            end
-        end
-    end
-})
-
--- =========================================================
--- 4× TOGGLE: GodMode | AntiKnockback | DoubleDamage | AutoHeal
--- =========================================================
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ByteNetReliable   = ReplicatedStorage:WaitForChild("ByteNetReliable")
-local RunService        = game:GetService("RunService")
-local Players           = game:GetService("Players")
-local plr               = Players.LocalPlayer
-
--- flags global
-_G.GodModeEnabled       = false
-_G.AntiKnockbackEnabled = false
-_G.DoubleDamageEnabled  = false
-_G.AutoHealEnabled      = false
-
--- === BACKUP ORIGINAL FUNCTIONS ===
-local origFireServer   = nil
-local origOnClient     = ByteNetReliable.OnClientEvent
-local origApplyImpulse = nil
-
--- === 1. GODMODE – spoof OnClientEvent damage ===
-local function spoofDamage(self, data)
-    if not _G.GodModeEnabled then return origOnClient:Fire(data) end
-    if typeof(data) ~= "buffer" then return origOnClient:Fire(data) end
-    local str = buffer.tostring(data)
-    -- signature damage: \2\14\0\1
-    if str:sub(1,4) == "\2\14\0\1" then
-        local newBuf = buffer.create(#str)
-        buffer.copy(newBuf, 0, str)
-        buffer.writei32(newBuf, 6, 0) -- damage = 0
-        return origOnClient:Fire(newBuf)
-    end
-    return origOnClient:Fire(data)
-end
-ByteNetReliable.OnClientEvent = spoofDamage
-
--- === 2. DOUBLE DAMAGE – hook FireServer keluar ===
-local function hookFireServer()
-    if origFireServer then return end
-    origFireServer = hookfunction(ByteNetReliable.FireServer, newcclosure(function(self, ...)
-        local args = {...}
-        if _G.DoubleDamageEnabled and typeof(args[1]) == "buffer" then
-            local str = buffer.tostring(args[1])
-            if str == "\a\001\001" and type(args[2]) == "table" and type(args[2][1]) == "number" then
-                args[2][1] = args[2][1] * 2
-            end
-        end
-        return origFireServer(self, unpack(args))
-    end))
+    spawn(function()
+        local tweenInfo = TweenInfo.new(math.random(2, 4), Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        local directionX = math.random(-1, 1) * 0.5
+        local directionY = math.random(-1, 1) * 0.5
+        TweenService:Create(star, tweenInfo, {
+            Position = UDim2.new(star.Position.X.Scale + directionX, 0, star.Position.Y.Scale + directionY, 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, math.random(15, 25), 0, math.random(15, 25))
+        }):Play()
+        TweenService:Create(glow, tweenInfo, {ImageTransparency = 1, Size = UDim2.new(3, 0, 3, 0)}):Play()
+        wait(tweenInfo.Time)
+        star:Destroy()
+    end)
 end
 
--- === 3. ANTI KNOCKBACK – hook ApplyImpulse & reset velocity ===
-local function hookAntiKnockback()
-    local c = plr.Character or plr.CharacterAdded:Wait()
-    local hum = c:WaitForChild("Humanoid")
-    if origApplyImpulse then return end
-    origApplyImpulse = hookfunction(hum.ApplyImpulse, newcclosure(function(self, ...)
-        if _G.AntiKnockbackEnabled then return end
-        return origApplyImpulse(self, ...)
-    end))
+spawn(function()
+    while true do
+        createStar()
+        wait(0.1)
+    end
+end)
 
-    -- stabilisasi velocity tiap frame
-    RunService.Stepped:Connect(function()
-        if not _G.AntiKnockbackEnabled then return end
-        local root = c:FindFirstChild("HumanoidRootPart")
-        if root and root.Velocity.Magnitude > 10 then
-            root.AssemblyLinearVelocity = Vector3.zero
+local function createEnergyLine()
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(0, math.random(100, 300), 0, 3)
+    line.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
+    line.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    line.BackgroundTransparency = 0.7
+    local lineGradient = Instance.new("UIGradient")
+    lineGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 200, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 150, 200)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 255, 150))
+    }
+    lineGradient.Parent = line
+    line.Parent = background
+
+    spawn(function()
+        local tweenInfo = TweenInfo.new(math.random(2, 4), Enum.EasingStyle.Sine)
+        local directionX = math.random(-1, 1) * 0.3
+        local directionY = math.random(-1, 1) * 0.3
+        TweenService:Create(line, tweenInfo, {
+            Position = UDim2.new(line.Position.X.Scale + directionX, 0, line.Position.Y.Scale + directionY, 0),
+            BackgroundTransparency = 1,
+            Rotation = math.random(-30, 30)
+        }):Play()
+        wait(tweenInfo.Time)
+        line:Destroy()
+    end)
+end
+
+spawn(function()
+    while true do
+        createEnergyLine()
+        wait(0.5)
+    end
+end)
+
+local topText = Instance.new("TextLabel")
+topText.Size = UDim2.new(0.9, 0, 0.07, 0)
+topText.Position = UDim2.new(0.05, 0, 0.02, 0)
+topText.Text = "âš ï¸ Sorry for the wait! Anti-cheat bypass needs a few minutes to unblock the script âš ï¸"
+topText.Font = Enum.Font.GothamBlack
+topText.TextSize = 18
+topText.TextColor3 = Color3.fromRGB(255, 100, 100)
+topText.BackgroundTransparency = 1
+topText.TextTransparency = 1
+local topStroke = Instance.new("UIStroke")
+topStroke.Color = Color3.fromRGB(255, 255, 255)
+topStroke.Thickness = 1
+topStroke.Parent = topText
+topText.Parent = background
+
+spawn(function()
+    wait(1)
+    TweenService:Create(topText, TweenInfo.new(2, Enum.EasingStyle.Quad), {TextTransparency = 0.1}):Play()
+    while true do
+        TweenService:Create(topText, TweenInfo.new(1.5, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(255, 50, 50)}):Play()
+        wait(1.5)
+        TweenService:Create(topText, TweenInfo.new(1.5, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(255, 150, 150)}):Play()
+        wait(1.5)
+    end
+end)
+
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(0.6, 0, 0.1, 0)
+loadingText.Position = UDim2.new(0.2, 0, 0.15, 0)
+loadingText.Text = "Initializing... 0%"
+loadingText.Font = Enum.Font.GothamBlack
+loadingText.TextSize = 30
+loadingText.TextColor3 = Color3.fromRGB(200, 220, 255)
+loadingText.BackgroundTransparency = 1
+loadingText.Parent = background
+
+spawn(function()
+    while true do
+        TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextTransparency = 0.4}):Play()
+        wait(1)
+        TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextTransparency = 0}):Play()
+        wait(1)
+    end
+end)
+
+local freezeText = Instance.new("TextLabel")
+freezeText.Size = UDim2.new(0.5, 0, 0.06, 0)
+freezeText.Position = UDim2.new(0.25, 0, 0.28, 0)
+freezeText.Text = ""
+freezeText.Font = Enum.Font.GothamBold
+freezeText.TextSize = 18
+freezeText.TextColor3 = Color3.fromRGB(255, 150, 150)
+freezeText.BackgroundTransparency = 1
+freezeText.TextTransparency = 1
+freezeText.Parent = background
+
+local progressBarBg = Instance.new("Frame")
+progressBarBg.Size = UDim2.new(0.7, 0, 0.06, 0)
+progressBarBg.Position = UDim2.new(0.15, 0, 0.38, 0)
+progressBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+progressBarBg.BorderSizePixel = 0
+local cornerBg = Instance.new("UICorner")
+cornerBg.CornerRadius = UDim.new(0, 15)
+cornerBg.Parent = progressBarBg
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(100, 150, 255)
+stroke.Thickness = 3
+stroke.Parent = progressBarBg
+progressBarBg.Parent = background
+
+local progressBarFill = Instance.new("Frame")
+progressBarFill.Size = UDim2.new(0, 0, 1, 0)
+progressBarFill.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
+local fillGradient = Instance.new("UIGradient")
+fillGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 200, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 150, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 255, 150))
+}
+fillGradient.Parent = progressBarFill
+local cornerFill = Instance.new("UICorner")
+cornerFill.CornerRadius = UDim.new(0, 15)
+cornerFill.Parent = progressBarFill
+local glowFill = Instance.new("ImageLabel")
+glowFill.Image = "rbxassetid://243098098"
+glowFill.Size = UDim2.new(1, 20, 1, 20)
+glowFill.Position = UDim2.new(0.5, 0, 0.5, 0)
+glowFill.AnchorPoint = Vector2.new(0.5, 0.5)
+glowFill.BackgroundTransparency = 1
+glowFill.ImageTransparency = 0.6
+glowFill.Parent = progressBarFill
+progressBarFill.Parent = progressBarBg
+
+local gameFrame = Instance.new("Frame")
+gameFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
+gameFrame.AnchorPoint = Vector2.new(0.5, 0)
+gameFrame.Position = UDim2.new(0.5, 0, 0.45, 0)
+gameFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 50)
+local gameCorner = Instance.new("UICorner")
+gameCorner.CornerRadius = UDim.new(0, 20)
+gameCorner.Parent = gameFrame
+local gameStroke = Instance.new("UIStroke")
+gameStroke.Color = Color3.fromRGB(100, 150, 255)
+gameStroke.Thickness = 3
+gameStroke.Parent = gameFrame
+gameFrame.Parent = background
+
+local gameTopText = Instance.new("TextLabel")
+gameTopText.Size = UDim2.new(1, 0, 0.15, 0)
+gameTopText.Position = UDim2.new(0, 0, -0.15, 0)
+gameTopText.Text = "discord.gg/pNfrgHeede"
+gameTopText.Font = Enum.Font.GothamBold
+gameTopText.TextSize = 18
+gameTopText.TextColor3 = Color3.fromRGB(255, 150, 200)
+gameTopText.BackgroundTransparency = 1
+gameTopText.Parent = gameFrame
+
+local score = 0
+local scoreText = Instance.new("TextLabel")
+scoreText.Size = UDim2.new(1, 0, 0.2, 0)
+scoreText.Position = UDim2.new(0, 0, 0.8, 0)
+scoreText.Text = "Score: " .. score
+scoreText.Font = Enum.Font.GothamBold
+scoreText.TextSize = 20
+scoreText.TextColor3 = Color3.fromRGB(220, 240, 255)
+scoreText.BackgroundTransparency = 1
+scoreText.Parent = gameFrame
+
+local boostButton = Instance.new("TextButton")
+boostButton.Size = UDim2.new(0.9, 0, 0.2, 0)
+boostButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+boostButton.BackgroundColor3 = Color3.fromRGB(255, 100, 150)
+boostButton.Text = "Boost 20% (50)"
+boostButton.Font = Enum.Font.GothamBlack
+boostButton.TextSize = 18
+boostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+boostButton.Visible = false
+local boostCorner = Instance.new("UICorner")
+boostCorner.CornerRadius = UDim.new(0, 10)
+boostCorner.Parent = boostButton
+local boostStroke = Instance.new("UIStroke")
+boostStroke.Color = Color3.fromRGB(255, 200, 100)
+boostStroke.Thickness = 2
+boostStroke.Parent = boostButton
+boostButton.Parent = gameFrame
+
+local function createNebula()
+    local nebula = Instance.new("TextButton")
+    nebula.Size = UDim2.new(0, math.random(40, 60), 0, math.random(40, 60))
+    nebula.Position = UDim2.new(math.random() * 0.7 + 0.15, 0, math.random() * 0.5 + 0.15, 0)
+    nebula.BackgroundColor3 = Color3.fromRGB(200, 100, 255)
+    nebula.Text = "\240\159\141\132"
+    nebula.Font = Enum.Font.SourceSansBold
+    nebula.TextSize = 40
+    nebula.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local nebulaCorner = Instance.new("UICorner")
+    nebulaCorner.CornerRadius = UDim.new(1, 0)
+    nebulaCorner.Parent = nebula
+    local glow = Instance.new("ImageLabel")
+    glow.Image = "rbxassetid://243098098"
+    glow.Size = UDim2.new(2, 0, 2, 0)
+    glow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    glow.AnchorPoint = Vector2.new(0.5, 0.5)
+    glow.BackgroundTransparency = 1
+    glow.ImageTransparency = 0.6
+    glow.Parent = nebula
+    nebula.Parent = gameFrame
+
+    spawn(function()
+        local moveTime = math.random(1, 2)
+        local directionX = math.random(-1, 1) * 0.2
+        local directionY = math.random(-1, 1) * 0.2
+        TweenService:Create(nebula, TweenInfo.new(moveTime, Enum.EasingStyle.Sine), {
+            Position = UDim2.new(nebula.Position.X.Scale + directionX, 0, nebula.Position.Y.Scale + directionY, 0)
+        }):Play()
+    end)
+
+    nebula.MouseButton1Click:Connect(function()
+        score = score + 1
+        scoreText.Text = "Score: " .. score
+        if score >= 50 and not boostButton.Visible then
+            boostButton.Visible = true
+            TweenService:Create(boostButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+        end
+        TweenService:Create(nebula, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
+        TweenService:Create(glow, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {ImageTransparency = 1}):Play()
+        wait(0.3)
+        nebula:Destroy()
+    end)
+
+    delay(math.random(0.8, 1.2), function()
+        if nebula.Parent then
+            TweenService:Create(nebula, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(glow, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {ImageTransparency = 1}):Play()
+            wait(0.4)
+            nebula:Destroy()
         end
     end)
 end
 
--- === 4. AUTO-HEAL – refill tiap frame ===
-RunService.Heartbeat:Connect(function()
-    if not _G.AutoHealEnabled then return end
-    local c = plr.Character or plr.CharacterAdded:Wait()
-    local hum = c:FindFirstChildOfClass("Humanoid")
-    if hum and hum.Health < hum.MaxHealth then
-        hum.Health = hum.MaxHealth
+local gameRunning = true
+spawn(function()
+    while gameRunning do
+        createNebula()
+        wait(0.6)
     end
 end)
 
--- === UI TOGGLES ===
-Sections.MainFeatures:AddToggle("GodMode_Toggle", {
-    Title = "God Mode",
-    Default = false,
-    Callback = function(s) _G.GodModeEnabled = s end
-})
+local function updateProgress(percent)
+    loadingText.Text = "Initializing... " .. percent .. "%"
+    progressBarFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.8, true)
+end
 
-Sections.MainFeatures:AddToggle("AntiKnockback_Toggle", {
-    Title = "Anti KnockBack",
-    Default = false,
-    Callback = function(s) _G.AntiKnockbackEnabled = s end
-})
+local percent = 0
+local function simulateLoading()
+    local totalTime = 0
+    local targetTime = math.random(300, 420)
 
-Sections.MainFeatures:AddToggle("DoubleDamage_Toggle", {
-    Title = "Double Damage",
-    Default = false,
-    Callback = function(s)
-        _G.DoubleDamageEnabled = s
-        hookFireServer()
+    while percent <= 100 and totalTime < targetTime do
+        local delayTime
+        if percent == 20 or percent == 50 or percent == 80 then
+            delayTime = math.random(15, 25)
+            freezeText.Text = "âš ï¸ Please wait 15-25 sec..."
+            TweenService:Create(freezeText, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+            updateProgress(percent)
+            wait(delayTime)
+            TweenService:Create(freezeText, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+            freezeText.Text = ""
+        else
+            delayTime = math.random(1, 2)
+            updateProgress(percent)
+            wait(delayTime)
+        end
+
+        totalTime = totalTime + delayTime
+        percent = percent + math.random(1, 2)
     end
-})
 
-Sections.MainFeatures:AddToggle("AutoHeal_Toggle", {
-    Title = "Auto Heal",
-    Default = false,
-    Callback = function(s) _G.AutoHealEnabled = s end
-})
+    while percent <= 100 do
+        updateProgress(percent)
+        wait(2)
+        percent = percent + 1
+    end
 
+    loadingText.Text = "Initialization Complete!"
+    TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(100, 255, 100)}):Play()
+end
 
-FlagsManager:SetLibrary(lib)
-FlagsManager:SetIgnoreIndexes({})
-FlagsManager:SetFolder("Stellar/HuntyZombie")
-FlagsManager:InitSaveSystem(tabs.Config)
-lib:Notification('STELLARHUB', 'We appreciate you using our hub!', 3)
+boostButton.MouseButton1Click:Connect(function()
+    if score >= 50 and percent < 80 then
+        score = score - 50
+        percent = percent + 20
+        if percent > 100 then percent = 100 end
+        scoreText.Text = "Score: " .. score
+        updateProgress(percent)
+        boostButton.Visible = false
+        TweenService:Create(boostButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+    end
+end)
+
+local function checkGameEnd()
+    player.CharacterAdded:Connect(function()
+        screenGui.Parent = playerGui
+    end)
+
+    game:GetService("Players").PlayerRemoving:Connect(function(leavingPlayer)
+        if leavingPlayer == player then
+            gameRunning = false
+        end
+    end)
+end
+
+setclipboard("discord.gg/pNfrgHeede")
+spawn(simulateLoading)
+checkGameEnd()
