@@ -1,3 +1,4 @@
+-- VortX Hub | Neon Cosmic Loader
 local player = game:GetService("Players").LocalPlayer
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -10,54 +11,59 @@ screenGui.Parent = game.CoreGui
 
 local background = Instance.new("Frame")
 background.Size = UDim2.new(1, 0, 1, 0)
-background.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
-local gradient = Instance.new("UIGradient")
-gradient.Rotation = 45
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 10, 10)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 40)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 10, 20))
-}
-gradient.Parent = background
+background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 background.Parent = screenGui
+
+local skyGradient = Instance.new("UIGradient")
+skyGradient.Rotation = 0
+skyGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 0, 30)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(80, 0, 50)),
+    ColorSequenceKeypoint.new(0.7, Color3.fromRGB(255, 0, 80)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(130, 0, 255))
+}
+skyGradient.Parent = background
 
 spawn(function()
     while true do
-        gradient.Rotation = (gradient.Rotation + 0.5) % 360
+        skyGradient.Rotation = (skyGradient.Rotation + 0.3) % 360
         RunService.RenderStepped:Wait()
     end
 end)
 
 local function createStar()
-    local color = Color3.fromRGB(math.random(200, 255), math.random(100, 200), math.random(100, 150))
     local star = Instance.new("Frame")
-    star.Size = UDim2.new(0, math.random(4, 8), 0, math.random(4, 8))
-    star.BackgroundColor3 = color
+    star.Size = UDim2.new(0, math.random(2, 6), 0, math.random(2, 6))
+    star.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
     star.Position = UDim2.new(math.random(), 0, math.random(), 0)
-    star.BackgroundTransparency = 0.7
+    star.BackgroundTransparency = 0.4
+    star.BorderSizePixel = 0
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(1, 0)
     corner.Parent = star
     local glow = Instance.new("ImageLabel")
     glow.Image = "rbxassetid://243098098"
-    glow.Size = UDim2.new(2.5, 0, 2.5, 0)
+    glow.Size = UDim2.new(3, 0, 3, 0)
     glow.Position = UDim2.new(0.5, 0, 0.5, 0)
     glow.AnchorPoint = Vector2.new(0.5, 0.5)
     glow.BackgroundTransparency = 1
-    glow.ImageColor3 = color
-    glow.ImageTransparency = 0.6
+    glow.ImageTransparency = 0.7
     glow.Parent = star
     star.Parent = background
 
     spawn(function()
-        local tweenInfo = TweenInfo.new(math.random(3, 5), Enum.EasingStyle.Sine)
-        local directionX = math.random(-1, 1) * 0.2
-        local directionY = math.random(-1, 1) * 0.2
-        TweenService:Create(star, tweenInfo, {
-            Position = UDim2.new(star.Position.X.Scale + directionX, 0, star.Position.Y.Scale + directionY, 0),
-            BackgroundTransparency = 1
+        local tween = TweenService:Create(star, TweenInfo.new(math.random(3, 6), Enum.EasingStyle.Sine), {
+            Position = UDim2.new(star.Position.X.Scale + math.random(-0.2, 0.2), 0,
+                star.Position.Y.Scale + math.random(-0.2, 0.2), 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, math.random(10, 20), 0, math.random(10, 20))
+        })
+        tween:Play()
+        TweenService:Create(glow, TweenInfo.new(math.random(3, 6)), {
+            ImageTransparency = 1,
+            Size = UDim2.new(5, 0, 5, 0)
         }):Play()
-        wait(tweenInfo.Time)
+        tween.Completed:Wait()
         star:Destroy()
     end)
 end
@@ -65,301 +71,169 @@ end
 spawn(function()
     while true do
         createStar()
-        wait(0.1)
+        wait(0.05)
     end
 end)
 
-local function createSunBurst()
-    local sun = Instance.new("Frame")
-    sun.Size = UDim2.new(0, 80, 0, 80)
-    sun.Position = UDim2.new(math.random(), math.random(120, 200), math.random(), math.random(120, 200))
-    sun.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
-    sun.BackgroundTransparency = 0.3
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(1, 0)
-    corner.Parent = sun
-    local rays = Instance.new("UIGradient")
-    rays.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 80)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 80, 80))
-    }
-    rays.Parent = sun
-    sun.Parent = background
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0.9, 0, 0.1, 0)
+title.Position = UDim2.new(0.05, 0, 0.05, 0)
+title.Text = "VORTX HUB"
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 48
+title.TextColor3 = Color3.fromRGB(255, 0, 100)
+title.BackgroundTransparency = 1
+title.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+title.TextStrokeTransparency = 0.5
+title.Parent = background
 
-    spawn(function()
-        local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Quadratic)
-        TweenService:Create(sun, tweenInfo, {
-            Size = UDim2.new(0, 30, 0, 30),
-            BackgroundTransparency = 1
+spawn(function()
+    while true do
+        TweenService:Create(title, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {
+            TextColor3 = Color3.fromRGB(255, 50, 150)
         }):Play()
-        wait(tweenInfo.Time)
-        sun:Destroy()
-    end)
-end
-
-spawn(function()
-    while true do
-        createSunBurst()
-        wait(5)
-    end
-end)
-
-local topText = Instance.new("TextLabel")
-topText.Size = UDim2.new(0.9, 0, 0.07, 0)
-topText.Position = UDim2.new(0.05, 0, 0.02, 0)
-topText.Text = "⚡ [VortX Hub] Please wait while our systems initialize... ⚡"
-topText.Font = Enum.Font.GothamBlack
-topText.TextSize = 18
-topText.TextColor3 = Color3.fromRGB(255, 70, 70)
-topText.BackgroundTransparency = 1
-topText.TextTransparency = 1
-local topStroke = Instance.new("UIStroke")
-topStroke.Color = Color3.fromRGB(255, 255, 100)
-topStroke.Thickness = 1
-topStroke.Parent = topText
-topText.Parent = background
-
-spawn(function()
-    wait(1)
-    TweenService:Create(topText, TweenInfo.new(2, Enum.EasingStyle.Quad), {TextTransparency = 0.1}):Play()
-    while true do
-        TweenService:Create(topText, TweenInfo.new(2, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(255, 50, 50)}):Play()
-        wait(2)
-        TweenService:Create(topText, TweenInfo.new(2, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(255, 150, 100)}):Play()
-        wait(2)
+        wait(0.8)
+        TweenService:Create(title, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {
+            TextColor3 = Color3.fromRGB(255, 0, 100)
+        }):Play()
+        wait(0.8)
     end
 end)
 
 local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(0.6, 0, 0.1, 0)
-loadingText.Position = UDim2.new(0.2, 0, 0.15, 0)
-loadingText.Text = "Initializing... 0%"
+loadingText.Size = UDim2.new(0.6, 0, 0.08, 0)
+loadingText.Position = UDim2.new(0.2, 0, 0.2, 0)
+loadingText.Text = "0 %"
 loadingText.Font = Enum.Font.GothamBlack
-loadingText.TextSize = 30
+loadingText.TextSize = 40
 loadingText.TextColor3 = Color3.fromRGB(255, 100, 100)
 loadingText.BackgroundTransparency = 1
 loadingText.Parent = background
 
-spawn(function()
-    while true do
-        TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextTransparency = 0.4}):Play()
-        wait(1)
-        TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextTransparency = 0}):Play()
-        wait(1)
-    end
-end)
-
 local progressBarBg = Instance.new("Frame")
-progressBarBg.Size = UDim2.new(0.7, 0, 0.06, 0)
-progressBarBg.Position = UDim2.new(0.15, 0, 0.3, 0)
-progressBarBg.BackgroundColor3 = Color3.fromRGB(50, 10, 10)
+progressBarBg.Size = UDim2.new(0.7, 0, 0.04, 0)
+progressBarBg.Position = UDim2.new(0.15, 0, 0.32, 0)
+progressBarBg.BackgroundColor3 = Color3.fromRGB(20, 0, 40)
 progressBarBg.BorderSizePixel = 0
 local cornerBg = Instance.new("UICorner")
-cornerBg.CornerRadius = UDim.new(0, 15)
+cornerBg.CornerRadius = UDim.new(0, 12)
 cornerBg.Parent = progressBarBg
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(255, 100, 70)
-stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(255, 0, 100)
+stroke.Thickness = 2
 stroke.Parent = progressBarBg
 progressBarBg.Parent = background
 
 local progressBarFill = Instance.new("Frame")
 progressBarFill.Size = UDim2.new(0, 0, 1, 0)
-progressBarFill.BackgroundColor3 = Color3.fromRGB(255, 200, 150)
-local fillGradient = Instance.new("UIGradient")
-fillGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 100, 70)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 150))
-}
-fillGradient.Parent = progressBarFill
+progressBarFill.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
 local cornerFill = Instance.new("UICorner")
-cornerFill.CornerRadius = UDim.new(0, 15)
+cornerFill.CornerRadius = UDim.new(0, 12)
 cornerFill.Parent = progressBarFill
 progressBarFill.Parent = progressBarBg
 
 local gameFrame = Instance.new("Frame")
-gameFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
+gameFrame.Size = UDim2.new(0.4, 0, 0.45, 0)
 gameFrame.AnchorPoint = Vector2.new(0.5, 0)
 gameFrame.Position = UDim2.new(0.5, 0, 0.45, 0)
-gameFrame.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
+gameFrame.BackgroundColor3 = Color3.fromRGB(30, 0, 40)
+gameFrame.BackgroundTransparency = 0.2
 local gameCorner = Instance.new("UICorner")
 gameCorner.CornerRadius = UDim.new(0, 20)
 gameCorner.Parent = gameFrame
 local gameStroke = Instance.new("UIStroke")
-gameStroke.Color = Color3.fromRGB(255, 70, 70)
-gameStroke.Thickness = 3
+gameStroke.Color = Color3.fromRGB(255, 0, 100)
+gameStroke.Thickness = 2
 gameStroke.Parent = gameFrame
 gameFrame.Parent = background
 
-local gameTopText = Instance.new("TextLabel")
-gameTopText.Size = UDim2.new(1, 0, 0.15, 0)
-gameTopText.Position = UDim2.new(0, 0, -0.15, 0)
-gameTopText.Text = "https://discord.gg/jxJ8HNQKjH"
-gameTopText.Font = Enum.Font.GothamBold
-gameTopText.TextSize = 18
-gameTopText.TextColor3 = Color3.fromRGB(255, 150, 150)
-gameTopText.BackgroundTransparency = 1
-gameTopText.Parent = gameFrame
-
-local score = 0
 local scoreText = Instance.new("TextLabel")
 scoreText.Size = UDim2.new(1, 0, 0.2, 0)
-scoreText.Position = UDim2.new(0, 0, 0.8, 0)
-scoreText.Text = "Energy: " .. score
+scoreText.Position = UDim2.new(0, 0, 0.05, 0)
+scoreText.Text = "ENERGY: 0"
 scoreText.Font = Enum.Font.GothamBold
-scoreText.TextSize = 20
-scoreText.TextColor3 = Color3.fromRGB(255, 200, 150)
+scoreText.TextSize = 28
+scoreText.TextColor3 = Color3.fromRGB(255, 100, 100)
 scoreText.BackgroundTransparency = 1
 scoreText.Parent = gameFrame
 
-local boostButton = Instance.new("TextButton")
-boostButton.Size = UDim2.new(0.9, 0, 0.2, 0)
-boostButton.Position = UDim2.new(0.05, 0, 0.55, 0)
-boostButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-boostButton.Text = "Solar Boost"
-boostButton.Font = Enum.Font.GothamBlack
-boostButton.TextSize = 18
-boostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-boostButton.Visible = false
-local boostCorner = Instance.new("UICorner")
-boostCorner.CornerRadius = UDim.new(0, 10)
-boostCorner.Parent = boostButton
-local boostStroke = Instance.new("UIStroke")
-boostStroke.Color = Color3.fromRGB(255, 150, 80)
-boostStroke.Thickness = 2
-boostStroke.Parent = boostButton
-boostButton.Parent = gameFrame
+local discordText = Instance.new("TextLabel")
+discordText.Size = UDim2.new(1, 0, 0.15, 0)
+discordText.Position = UDim2.new(0, 0, 0.85, 0)
+discordText.Text = "discord.gg/jxJ8HNQKjH"
+discordText.Font = Enum.Font.GothamBold
+discordText.TextSize = 18
+discordText.TextColor3 = Color3.fromRGB(255, 200, 200)
+discordText.BackgroundTransparency = 1
+discordText.Parent = gameFrame
 
-local function createNebula()
-    local nebula = Instance.new("TextButton")
-    nebula.Size = UDim2.new(0, math.random(40, 60), 0, math.random(40, 60))
-    nebula.Position = UDim2.new(math.random() * 0.7 + 0.15, 0, math.random() * 0.5 + 0.15, 0)
-    nebula.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-    nebula.Text = "\240\159\141\132"
-    nebula.Font = Enum.Font.SourceSansBold
-    nebula.TextSize = 40
-    nebula.TextColor3 = Color3.fromRGB(255, 255, 200)
-    local nebulaCorner = Instance.new("UICorner")
-    nebulaCorner.CornerRadius = UDim.new(1, 0)
-    nebulaCorner.Parent = nebula
+local score = 0
+local function createParticle()
+    local p = Instance.new("TextButton")
+    p.Size = UDim2.new(0, math.random(30, 50), 0, math.random(30, 50))
+    p.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    p.BackgroundColor3 = Color3.fromRGB(255, 100, 150)
+    p.Text = ""
+    p.Font = Enum.Font.GothamBold
+    p.TextSize = 24
+    p.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = p
     local glow = Instance.new("ImageLabel")
     glow.Image = "rbxassetid://243098098"
-    glow.Size = UDim2.new(2, 0, 2, 0)
+    glow.Size = UDim2.new(2.5, 0, 2.5, 0)
     glow.Position = UDim2.new(0.5, 0, 0.5, 0)
     glow.AnchorPoint = Vector2.new(0.5, 0.5)
     glow.BackgroundTransparency = 1
-    glow.ImageTransparency = 0.6
-    glow.ImageColor3 = Color3.fromRGB(255, 150, 80)
-    glow.Parent = nebula
-    nebula.Parent = gameFrame
+    glow.ImageTransparency = 0.7
+    glow.ImageColor3 = Color3.fromRGB(255, 100, 150)
+    glow.Parent = p
+    p.Parent = gameFrame
 
     spawn(function()
-        local moveTime = math.random(1, 2)
-        local directionX = math.random(-1, 1) * 0.2
-        local directionY = math.random(-1, 1) * 0.2
-        TweenService:Create(nebula, TweenInfo.new(moveTime, Enum.EasingStyle.Sine), {
-            Position = UDim2.new(nebula.Position.X.Scale + directionX, 0, nebula.Position.Y.Scale + directionY, 0)
-        }):Play()
+        local tween = TweenService:Create(p, TweenInfo.new(math.random(2, 4), Enum.EasingStyle.Quad), {
+            Position = UDim2.new(math.random(), 0, math.random(), 0)
+        })
+        tween:Play()
     end)
 
-    nebula.MouseButton1Click:Connect(function()
+    p.MouseButton1Click:Connect(function()
         score = score + 1
-        scoreText.Text = "Energy: " .. score
-        if score >= 5 then
-            boostButton.Visible = true
-            TweenService:Create(boostButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-        end
-        TweenService:Create(nebula, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
-        TweenService:Create(glow, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {ImageTransparency = 1}):Play()
-        wait(0.3)
-        nebula:Destroy()
+        scoreText.Text = "ENERGY: " .. score
+        TweenService:Create(p, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+        TweenService:Create(glow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+        wait(0.2)
+        p:Destroy()
     end)
 
-    delay(math.random(0.8, 1.2), function()
-        if nebula.Parent then
-            TweenService:Create(nebula, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(glow, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {ImageTransparency = 1}):Play()
+    delay(math.random(3, 5), function()
+        if p.Parent then
+            TweenService:Create(p, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
             wait(0.4)
-            nebula:Destroy()
+            p:Destroy()
         end
     end)
 end
 
-local gameRunning = true
 spawn(function()
-    while gameRunning do
-        createNebula()
-        wait(0.5)
+    while true do
+        createParticle()
+        wait(0.4)
     end
 end)
-
-local function updateProgress(percent)
-    loadingText.Text = "Initializing... " .. percent .. "%"
-    progressBarFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.8, true)
-end
 
 local percent = 0
 local function simulateLoading()
-    local totalTime = 0
-    local targetTime = math.random(300, 420)
-
-    while percent <= 100 and totalTime < targetTime do
-        local delayTime
-        if percent == 30 or percent == 60 or percent == 90 then
-            delayTime = math.random(8, 15)
-            topText.Text = "⚡ [VortX Hub] System scan in progress... ⚡"
-            TweenService:Create(topText, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {TextTransparency = 0.1}):Play()
-            updateProgress(percent)
-            wait(delayTime)
-            topText.Text = "⚡ [VortX Hub] Please wait while our systems initialize... ⚡"
-            TweenService:Create(topText, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {TextTransparency = 0.1}):Play()
-        else
-            delayTime = math.random(1, 2)
-            updateProgress(percent)
-            wait(delayTime)
-        end
-
-        totalTime = totalTime + delayTime
-        percent = percent + math.random(1, 2)
+    while percent < 100 do
+        local step = math.random(2, 5)
+        percent = math.min(percent + step, 100)
+        loadingText.Text = percent .. " %"
+        progressBarFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.3, true)
+        wait(math.random(0.4, 1.2))
     end
-
-    while percent <= 100 do
-        updateProgress(percent)
-        wait(2)
-        percent = percent + 1
-    end
-
-    loadingText.Text = "Initialization Complete!"
-    TweenService:Create(loadingText, TweenInfo.new(1, Enum.EasingStyle.Sine), {TextColor3 = Color3.fromRGB(100, 255, 100)}):Play()
+    loadingText.Text = "COMPLETE!"
 end
 
-boostButton.MouseButton1Click:Connect(function()
-    if score >= 5 then
-        score = score - 5
-        percent = percent + 5
-        if percent > 100 then percent = 100 end
-        scoreText.Text = "Energy: " .. score
-        updateProgress(percent)
-        spawn(function()
-            TweenService:Create(boostButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 180, 100)}):Play()
-            wait(0.2)
-            TweenService:Create(boostButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 80, 80)}):Play()
-        end)
-    end
-end)
-
-local function checkGameEnd()
-    player.CharacterAdded:Connect(function()
-        screenGui.Parent = playerGui
-    end)
-
-    game:GetService("Players").PlayerRemoving:Connect(function(leavingPlayer)
-        if leavingPlayer == player then
-            gameRunning = false
-        end
-    end)
-end
-
-setclipboard("https://discord.gg/jxJ8HNQKjH")
+setclipboard("discord.gg/jxJ8HNQKjH")
 spawn(simulateLoading)
-checkGameEnd()
