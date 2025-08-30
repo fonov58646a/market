@@ -1,5 +1,5 @@
--- VortX Hub | Neon Cosmic Loader v3 (FIXED like v1 structure)
--- Everything is parented to CoreGui exactly like your first script
+-- VortX Hub | Neon Cosmic Loader v4 - V1 STRUCTURE
+-- Menggunakan cara pembuatan & parent seperti v1 (screenGui → CoreGui)
 local player = game:GetService("Players").LocalPlayer
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -11,75 +11,62 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = game.CoreGui
 
 ------------------------------------------------------------------
--- 1. Dynamic black→red 3D starfield background
+-- 1. Background luar angkasa bergerak
 ------------------------------------------------------------------
 local background = Instance.new("Frame")
 background.Size = UDim2.new(1, 0, 1, 0)
 background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 background.Parent = screenGui
 
--- 3D star camera
-local cam = Instance.new("Camera")
-cam.FieldOfView = 70
-local viewport = Instance.new("ViewportFrame")
-viewport.Size = UDim2.new(1, 0, 1, 0)
-viewport.BackgroundTransparency = 1
-viewport.CurrentCamera = cam
-viewport.Parent = background
-cam.Parent = viewport
-
--- Star generator
-local starCount = 300
-for i = 1, starCount do
-    local star = Instance.new("Part")
-    star.Shape = Enum.PartType.Ball
-    star.Size = Vector3.new(math.random(1, 3) / 10, math.random(1, 3) / 10, math.random(1, 3) / 10)
-    star.BrickColor = BrickColor.new("Neon orange")
-    star.Material = Enum.Material.Neon
-    star.Anchored = true
-    star.CFrame = CFrame.new(
-        math.random(-250, 250),
-        math.random(-250, 250),
-        math.random(-250, 250)
-    )
-    star.Parent = viewport
+-- Bintang animasi
+for i = 1, 150 do
+    local star = Instance.new("Frame")
+    star.Size = UDim2.new(0, math.random(1, 4), 0, math.random(1, 4))
+    star.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    star.BackgroundColor3 = Color3.fromRGB(255, 100, 255)
+    star.BackgroundTransparency = math.random(3, 7) / 10
+    star.BorderSizePixel = 0
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = star
+    star.Parent = background
+    
     spawn(function()
         while true do
-            star.CFrame = star.CFrame * CFrame.new(0, 0, 0.1)
-            if star.Position.Z > 250 then
-                star.CFrame = CFrame.new(star.Position.X, star.Position.Y, -250)
-            end
-            RunService.RenderStepped:Wait()
+            TweenService:Create(star, TweenInfo.new(math.random(4, 8)), {
+                Position = UDim2.new(star.Position.X.Scale, 0, (star.Position.Y.Scale + 0.1) % 1, 0)
+            }):Play()
+            wait(math.random(4, 8))
         end
     end)
 end
 
--- Red gradient overlay
+-- Gradient merah neon
 local skyGradient = Instance.new("UIGradient")
 skyGradient.Rotation = 0
 skyGradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60, 0, 20)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 80))
 }
 skyGradient.Parent = background
 
 spawn(function()
     while true do
-        skyGradient.Rotation = (skyGradient.Rotation + 0.3) % 360
+        skyGradient.Rotation = (skyGradient.Rotation + 0.4) % 360
         RunService.RenderStepped:Wait()
     end
 end)
 
 ------------------------------------------------------------------
--- 2. Brand & Discord (like v1)
+-- 2. Brand VORTX + Discord (animasi)
 ------------------------------------------------------------------
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.9, 0, 0.1, 0)
-title.Position = UDim2.new(0.05, 0, 0.05, 0)
+title.Position = UDim2.new(0.05, 0, 0.1, 0)
 title.Text = "VORTX HUB"
 title.Font = Enum.Font.GothamBlack
-title.TextSize = 48
+title.TextSize = 60
 title.TextColor3 = Color3.fromRGB(255, 0, 100)
 title.BackgroundTransparency = 1
 title.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
@@ -99,22 +86,40 @@ spawn(function()
     end
 end)
 
+------------------------------------------------------------------
+-- 3. Frame Discord khusus (glow)
+------------------------------------------------------------------
+local discordFrame = Instance.new("Frame")
+discordFrame.Size = UDim2.new(0.3, 0, 0.06, 0)
+discordFrame.Position = UDim2.new(0.35, 0, 0.22, 0)
+discordFrame.BackgroundColor3 = Color3.fromRGB(40, 0, 60)
+discordFrame.BackgroundTransparency = 0.3
+discordFrame.BorderSizePixel = 0
+local dCorner = Instance.new("UICorner")
+dCorner.CornerRadius = UDim.new(0, 12)
+dCorner.Parent = discordFrame
+local dStroke = Instance.new("UIStroke")
+dStroke.Color = Color3.fromRGB(255, 0, 100)
+dStroke.Thickness = 2
+dStroke.Parent = discordFrame
+discordFrame.Parent = background
+
 local discordText = Instance.new("TextLabel")
-discordText.Size = UDim2.new(0.6, 0, 0.08, 0)
-discordText.Position = UDim2.new(0.2, 0, 0.2, 0)
+discordText.Size = UDim2.new(1, 0, 1, 0)
+discordText.Position = UDim2.new(0, 0, 0, 0)
 discordText.Text = "discord.gg/jxJ8HNQKjH"
 discordText.Font = Enum.Font.GothamBold
-discordText.TextSize = 24
+discordText.TextSize = 18
 discordText.TextColor3 = Color3.fromRGB(255, 200, 200)
 discordText.BackgroundTransparency = 1
-discordText.Parent = background
+discordText.Parent = discordFrame
 
 ------------------------------------------------------------------
--- 3. Progress bar + fake tasks
+-- 4. Progress Bar di tengah (full animasi)
 ------------------------------------------------------------------
 local progressBarBg = Instance.new("Frame")
-progressBarBg.Size = UDim2.new(0.7, 0, 0.04, 0)
-progressBarBg.Position = UDim2.new(0.15, 0, 0.8, 0)
+progressBarBg.Size = UDim2.new(0.5, 0, 0.04, 0)
+progressBarBg.Position = UDim2.new(0.25, 0, 0.48, 0)
 progressBarBg.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
 progressBarBg.BorderSizePixel = 0
 local cornerBg = Instance.new("UICorner")
@@ -134,7 +139,7 @@ cornerFill.CornerRadius = UDim.new(0, 12)
 cornerFill.Parent = progressBarFill
 progressBarFill.Parent = progressBarBg
 
--- Shine
+-- Shine effect
 local shine = Instance.new("Frame")
 shine.Size = UDim2.new(0.3, 0, 1, 0)
 shine.Position = UDim2.new(-0.3, 0, 0, 0)
@@ -145,36 +150,27 @@ shine.Parent = progressBarFill
 TweenService:Create(shine, TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true), {Position = UDim2.new(1, 0, 0, 0)}):Play()
 
 local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(0.6, 0, 0.08, 0)
-loadingText.Position = UDim2.new(0.2, 0, 0.72, 0)
+loadingText.Size = UDim2.new(0.2, 0, 0.05, 0)
+loadingText.Position = UDim2.new(0.4, 0, 0.53, 0)
 loadingText.Text = "0 %"
 loadingText.Font = Enum.Font.GothamBlack
-loadingText.TextSize = 40
-loadingText.TextColor3 = Color3.fromRGB(255, 100, 100)
+loadingText.TextSize = 34
+loadingText.TextColor3 = Color3.fromRGB(255, 0, 100)
 loadingText.BackgroundTransparency = 1
 loadingText.Parent = background
 
 local fakeTask = Instance.new("TextLabel")
-fakeTask.Size = UDim2.new(0.6, 0, 0.05, 0)
-fakeTask.Position = UDim2.new(0.2, 0, 0.86, 0)
-fakeTask.Text = "Initializing VortX engine..."
+fakeTask.Size = UDim2.new(0.6, 0, 0.04, 0)
+fakeTask.Position = UDim2.new(0.2, 0, 0.43, 0)
+fakeTask.Text = "Loading VortX assets..."
 fakeTask.Font = Enum.Font.Gotham
-fakeTask.TextSize = 18
+fakeTask.TextSize = 20
 fakeTask.TextColor3 = Color3.fromRGB(200, 200, 200)
 fakeTask.BackgroundTransparency = 1
 fakeTask.Parent = background
 
-local tasks = {
-    "Initializing VortX engine...",
-    "Decrypting scripts...",
-    "Preloading assets...",
-    "Establishing secure connection...",
-    "Finishing up..."
-}
-local taskIndex = 1
-
 ------------------------------------------------------------------
--- 4. Games container (hidden until load complete)
+-- 5. Games container (muncul setelah loading)
 ------------------------------------------------------------------
 local gameFrame = Instance.new("Frame")
 gameFrame.Size = UDim2.new(0.4, 0, 0.45, 0)
@@ -182,7 +178,7 @@ gameFrame.AnchorPoint = Vector2.new(0.5, 0)
 gameFrame.Position = UDim2.new(0.5, 0, 0.45, 0)
 gameFrame.BackgroundColor3 = Color3.fromRGB(30, 0, 40)
 gameFrame.BackgroundTransparency = 0.2
-gameFrame.Visible = false  -- Will show after loading
+gameFrame.Visible = false
 local gameCorner = Instance.new("UICorner")
 gameCorner.CornerRadius = UDim.new(0, 20)
 gameCorner.Parent = gameFrame
@@ -203,27 +199,8 @@ scoreText.BackgroundTransparency = 1
 scoreText.Parent = gameFrame
 
 ------------------------------------------------------------------
--- 5. Mini-games & achievements
+-- 5a. Memory Puzzle
 ------------------------------------------------------------------
-local score = 0
-local function addScore(amount)
-    score = score + amount
-    scoreText.Text = "ENERGY: " .. score
-    if score >= 100 and not achievementLabel.Text:find("EASTER") then
-        achievementLabel.Text = "⭐ EASTER EGG UNLOCKED! ⭐"
-        -- Easter egg: disco background
-        spawn(function()
-            local hue = 0
-            while true do
-                hue = (hue + 2) % 360
-                background.BackgroundColor3 = Color3.fromHSV(hue / 360, 1, 1)
-                wait(0.1)
-            end
-        end)
-    end
-end
-
--- Memory Game
 local memoryFrame = Instance.new("Frame")
 memoryFrame.Size = UDim2.new(1, 0, 0.7, 0)
 memoryFrame.Position = UDim2.new(0, 0, 0.15, 0)
@@ -244,7 +221,7 @@ local function createMemoryRound()
     userInput = {}
     
     -- Generate pattern
-    local len = 3 + math.floor(score / 20)
+    local len = 3 + math.floor(score / 15)
     for i = 1, len do
         pattern[i] = colors[math.random(1, #colors)]
     end
@@ -263,7 +240,7 @@ local function createMemoryRound()
         table.insert(memoryButtons, btn)
     end
     
-    wait(2)
+    wait(1.5)
     
     -- Hide colors
     for _, btn in ipairs(memoryButtons) do
@@ -292,10 +269,11 @@ local function createMemoryRound()
                 end
                 
                 if correct then
-                    addScore(15)
+                    score = score + 15
                 else
-                    addScore(-5)
+                    score = score - 5
                 end
+                scoreText.Text = "ENERGY: " .. score
                 
                 wait(1)
                 createMemoryRound()
@@ -304,7 +282,9 @@ local function createMemoryRound()
     end
 end
 
--- Trivia Game
+------------------------------------------------------------------
+-- 5b. Trivia Quiz
+------------------------------------------------------------------
 local triviaFrame = Instance.new("Frame")
 triviaFrame.Size = UDim2.new(1, 0, 0.7, 0)
 triviaFrame.Position = UDim2.new(0, 0, 0.15, 0)
@@ -360,19 +340,21 @@ end
 
 trueBtn.MouseButton1Click:Connect(function()
     if trivia[triviaIndex].a then
-        addScore(10)
+        score = score + 10
     else
-        addScore(-5)
+        score = score - 5
     end
+    scoreText.Text = "ENERGY: " .. score
     nextTrivia()
 end)
 
 falseBtn.MouseButton1Click:Connect(function()
     if not trivia[triviaIndex].a then
-        addScore(10)
+        score = score + 10
     else
-        addScore(-5)
+        score = score - 5
     end
+    scoreText.Text = "ENERGY: " .. score
     nextTrivia()
 end)
 
@@ -409,23 +391,29 @@ triviaBtn.BorderSizePixel = 0
 triviaBtn.Parent = gameFrame
 
 memoryBtn.MouseButton1Click:Connect(function()
-    showGame("Memory")
+    triviaFrame.Visible = false
+    memoryFrame.Visible = true
     createMemoryRound()
 end)
 
 triviaBtn.MouseButton1Click:Connect(function()
-    showGame("Trivia")
+    memoryFrame.Visible = false
+    triviaFrame.Visible = true
 end)
 
-local function showGame(name)
-    memoryFrame.Visible = (name == "Memory")
-    triviaFrame.Visible = (name == "Trivia")
-end
-
 ------------------------------------------------------------------
--- 6. Loading simulation → hide UI after complete
+-- 6. Loading simulation → hide UI setelah complete
 ------------------------------------------------------------------
 local percent = 0
+local tasks = {
+    "Loading VortX assets...",
+    "Decrypting scripts...",
+    "Preloading games...",
+    "Connecting to server...",
+    "Finalizing..."
+}
+local taskIndex = 1
+
 local function simulateLoading()
     while percent < 100 do
         local step = math.random(2, 5)
@@ -444,12 +432,20 @@ local function simulateLoading()
     
     loadingText.Text = "COMPLETE!"
     fakeTask.Text = "Launching games..."
-    wait(1)
+    wait(1.5)
     
-    -- Hide loading UI, show games
+    -- Fade out loading UI
+    TweenService:Create(background, TweenInfo.new(0.6), {BackgroundTransparency = 1}):Play()
+    for _, v in ipairs({title, discordFrame, progressBarBg, loadingText, fakeTask}) do
+        TweenService:Create(v, TweenInfo.new(0.6), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+    end
+    
+    wait(0.6)
+    
+    -- Hide loading UI and show games
     background.Visible = false
     gameFrame.Visible = true
-    showGame("Trivia") -- Default game
+    triviaFrame.Visible = true -- Default game
 end
 
 setclipboard("discord.gg/jxJ8HNQKjH")
