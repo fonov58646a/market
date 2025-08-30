@@ -1,7 +1,7 @@
 -- VortX Hub | Kill Streak
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/1nig1htmare1234/SCRIPTS/main/Orion.lua"))()
 
--- Game services
+-- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,71 +9,69 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- Player
 local LocalPlayer = Players.LocalPlayer
 
--- Remote detection
+-- Remote
 local HitRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Hit")
 if not HitRemote then
-    OrionLib:MakeNotification({Name = "Error", Content = "RemoteEvent 'Hit' not found!", Time = 5})
+    OrionLib:MakeNotification({Name = "Error", Content = "Remote 'Hit' not found!", Time = 5})
     return
 end
 
--- ESP variables
+-- ESP
 local espEnabled = false
 local highlightFolder = Instance.new("Folder")
 highlightFolder.Name = "VortXHighlights"
 highlightFolder.Parent = game.CoreGui
 
--- Utility: Add ESP to a player
 local function addPlayerESP(player)
     if not espEnabled then return end
-    local character = player.Character or player.CharacterAdded:Wait()
-    if character and not character:FindFirstChild("VortXESP") then
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "VortXESP"
-        highlight.Adornee = character
-        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
-        highlight.Parent = highlightFolder
+    local char = player.Character or player.CharacterAdded:Wait()
+    if char and not char:FindFirstChild("VortXESP") then
+        local hl = Instance.new("Highlight")
+        hl.Name = "VortXESP"
+        hl.Adornee = char
+        hl.FillColor = Color3.fromRGB(255, 0, 0)
+        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+        hl.FillTransparency = 0.5
+        hl.OutlineTransparency = 0
+        hl.Parent = highlightFolder
     end
 end
 
--- Utility: Remove all ESP
 local function removeAllESP()
-    for _, highlight in ipairs(highlightFolder:GetChildren()) do
-        highlight:Destroy()
+    for _, v in ipairs(highlightFolder:GetChildren()) do
+        v:Destroy()
     end
 end
 
--- Utility: Update ESP
 local function updateESP()
     removeAllESP()
     if espEnabled then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                addPlayerESP(player)
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then
+                addPlayerESP(p)
             end
         end
     end
 end
 
--- Kill aura & auto attack
+-- Features
 local killAuraEnabled = false
 local autoAttackEnabled = false
 
 local function attackNearest()
-    local closest = nil
-    local maxDist = 30
     local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
+    local closest = nil
+    local maxDist = 30
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            local targetRoot = p.Character:FindFirstChild("HumanoidRootPart")
             if targetRoot then
                 local dist = (targetRoot.Position - root.Position).Magnitude
                 if dist <= maxDist then
-                    closest = player
+                    closest = p
                 end
             end
         end
@@ -84,7 +82,7 @@ local function attackNearest()
     end
 end
 
--- Main loop
+-- Loop
 RunService.Heartbeat:Connect(function()
     if killAuraEnabled or autoAttackEnabled then
         attackNearest()
@@ -129,21 +127,19 @@ MainTab:AddToggle({
     end
 })
 
--- Handle new players joining
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
+-- Auto refresh ESP on player join/leave
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function()
         if espEnabled then
-            addPlayerESP(player)
+            addPlayerESP(p)
         end
     end)
 end)
 
--- Handle players leaving
-Players.PlayerRemoving:Connect(function(player)
+Players.PlayerRemoving:Connect(function()
     updateESP()
 end)
 
--- Initial ESP setup
+-- Initial
 updateESP()
-
 OrionLib:Init()
